@@ -9,6 +9,7 @@ import { cartActions } from '~/store/cart';
 import { toDecimal, getTotalPrice } from '~/utils';
 
 function Cart(props) {
+    console.log(props)
     const { cartList, removeFromCart, updateCart } = props;
     const [cartItems, setCartItems] = useState([]);
 
@@ -32,7 +33,7 @@ function Cart(props) {
         return true;
     }
 
- 
+
 
     const update = () => {
         updateCart(cartItems);
@@ -42,9 +43,18 @@ function Cart(props) {
         <div className="main cart">
             <div className="page-content pt-7 pb-10">
                 <div className="step-by pr-4 pl-4">
-                    <h3 className="title title-simple title-step active"><ALink href="#">1. Shopping Cart</ALink></h3>
-                    <h3 className="title title-simple title-step"><ALink href="/pages/checkout">2. Checkout</ALink></h3>
-                    <h3 className="title title-simple title-step"><ALink href="/pages/order">3. Order Complete</ALink></h3>
+                    <h3 className="title title-simple title-step active">
+                        1. Shopping Cart
+                    </h3>
+                    <h3 className="title title-simple title-step">
+                        2. Checkout
+                    </h3>
+                    <h3 className="title title-simple title-step ">
+                        3. Payment
+                    </h3>
+                    <h3 className="title title-simple title-step">
+                        3. Order Complete
+                    </h3>
                 </div>
 
                 <div className="container mt-7 mb-2">
@@ -109,13 +119,7 @@ function Cart(props) {
                                                 Update Cart
                                             </button>
                                         </div>
-                                        {/*
-                                        <div className="cart-coupon-box mb-8">
-                                            <h4 className="title coupon-title text-uppercase ls-m">Coupon Discount</h4>
-                                            <input type="text" name="coupon_code" className="input-text form-control text-grey ls-m mb-4"
-                                                id="coupon_code" placeholder="Enter coupon code here..." />
-                                            <button type="submit" className="btn btn-md btn-dark btn-rounded btn-outline">Apply Coupon</button>
-                                        </div>*/}
+
                                     </div>
                                     <aside className="col-lg-4 sticky-sidebar-wrapper">
                                         <div className="sticky-sidebar" data-sticky-options="{'bottom': 20}">
@@ -131,57 +135,10 @@ function Cart(props) {
                                                                 <p className="summary-subtotal-price">${toDecimal(getTotalPrice(cartItems))}</p>
                                                             </td>
                                                         </tr>
-                                                        <tr className="sumnary-shipping shipping-row-last">
-                                                            <td colSpan="2">
-                                                                <h4 className="summary-subtitle">Calculate Shipping</h4>
-                                                                <ul>
-                                                                    <li>
-                                                                        <div className="custom-radio">
-                                                                            <input type="radio" id="flat_rate" name="shipping" className="custom-control-input" defaultChecked />
-                                                                            <label className="custom-control-label" htmlFor="flat_rate">Flat rate</label>
-                                                                        </div>
-                                                                    </li>
-                                                                    <li>
-                                                                        <div className="custom-radio">
-                                                                            <input type="radio" id="free-shipping" name="shipping" className="custom-control-input" />
-                                                                            <label className="custom-control-label" htmlFor="free-shipping">Free
-                                                                                shipping</label>
-                                                                        </div>
-                                                                    </li>
 
-                                                                    <li>
-                                                                        <div className="custom-radio">
-                                                                            <input type="radio" id="local_pickup" name="shipping" className="custom-control-input" />
-                                                                            <label className="custom-control-label" htmlFor="local_pickup">Local pickup</label>
-                                                                        </div>
-                                                                    </li>
-                                                                </ul>
-                                                            </td>
-                                                        </tr>
                                                     </tbody>
                                                 </table>
-                                                <div className="shipping-address">
-                                                    <label>Shipping to <strong>CA.</strong></label>
-                                                    <div className="select-box">
-                                                        <select name="country" className="form-control" defaultValue="us">
-                                                            <option value="us">United States (US)</option>
-                                                            <option value="uk"> United Kingdom</option>
-                                                            <option value="fr">France</option>
-                                                            <option value="aus">Austria</option>
-                                                        </select>
-                                                    </div>
-                                                    <div className="select-box">
-                                                        <select name="country" className="form-control" defaultValue="us">
-                                                            <option value="us">California</option>
-                                                            <option value="uk">Alaska</option>
-                                                            <option value="fr">Delaware</option>
-                                                            <option value="aus">Hawaii</option>
-                                                        </select>
-                                                    </div>
-                                                    <input type="text" className="form-control" name="code" placeholder="Town / City" />
-                                                    <input type="text" className="form-control" name="code" placeholder="ZIP" />
-                                                    <ALink href="#" className="btn btn-md btn-dark btn-rounded btn-outline">Update totals</ALink>
-                                                </div>
+
                                                 <table className="total">
                                                     <tbody>
                                                         <tr className="summary-subtotal">
@@ -223,4 +180,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, { removeFromCart: cartActions.removeFromCart,  updateCart: cartActions.updateCart })(Cart);
+export default connect(mapStateToProps, { removeFromCart: cartActions.removeFromCart, updateCart: cartActions.updateCart })(Cart);

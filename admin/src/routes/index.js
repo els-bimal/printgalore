@@ -1,25 +1,33 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router';
-import Dashboards from './Dashboards';
-import Components from './Components';
-import Apps from './Apps';
-import Extensions from './Extensions';
-import Charts from './Charts';
-import Maps from './Maps';
-import Widgets from './Widgets';
-import Metrics from './Metrics';
-import Login from './Auth/Login';
-import Signup from './Auth/Register';
-import ForgotPassword from './Auth/ForgotPassword';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import ExtraPages from './ExtraPages';
-import TourGuide from './TourGuide';
-import CustomTimelines from './views/CustomTimelines';
-import MaterialTimelines from './views/MaterialTimelines';
-import Calendar from './modules/Calendar';
-import UsersModule from './modules/Users';
-// import LayoutBuilder from './LayoutBuilder';
+import SamplePage from './Pages/SamplePage';
+import SalesOrder from './Pages/Sales/SalesOrder';
+import Quotes from './Pages/Sales/Quotes';
+import Customer from './Pages/Sales/Customer';
+import Reporting from './Pages/Accounting/Reporting';
+import Ledger from './Pages/Accounting/Ledger';
+import Bills from './Pages/Accounting/Bills';
+import BatchInvoices from './Pages/Accounting/BatchInvoices';
+import Invoices from './Pages/Accounting/Invoices';
+import AccountsChart from './Pages/Accounting/AccountsChart';
+import Products from './Pages/Operations/Products';
+import Vendors from './Pages/Operations/Vendors';
+import PurchaseOrders from './Pages/Operations/PurchaseOrders';
+import RequestForQuotes from './Pages/Operations/RequestForQuotes';
+import Pricing from './Pages/Operations/Pricing';
+import Inventory from './Pages/Warehouse/Inventory';
+import RecieveGoods from './Pages/Warehouse/RecieveGoods';
+import MatierialTransfer from './Pages/Warehouse/MatierialTransfer';
+import Browser from './Pages/Leagacy/Browser';
+import TimeClock from './Pages/SystemAdmin/TimeClock';
+import Error404 from './Pages/404';
+import Login from './Auth/Login';
+import ResetPassword from  './Auth/ResetPassword';
+import Register from './Auth/Register';
+import ForgotPasswordPage from './Auth/ForgotPassword';
+import BasicAuth from '../services/auth/Basic/index';
 
 const RestrictedRoute = ({ component: Component, ...rest }) => {
   const { authUser } = useSelector(({ auth }) => auth);
@@ -45,38 +53,53 @@ const RestrictedRoute = ({ component: Component, ...rest }) => {
 const Routes = () => {
   const { authUser } = useSelector(({ auth }) => auth);
   const location = useLocation();
-
+  console.log('__________________');
+  console.log(authUser)
+  if(authUser !== null && authUser.resetPassword !== undefined && authUser.resetPassword !== null && authUser.resetPassword === true){
+    location.pathname = '/setpassword';
+  }
+  if(authUser === null && !(location.pathname === '' || location.pathname === '/')){
+    console.log('_________END_________');
+    location.pathname = '/signin';  
+    //location.pathname = '/';
+  }
+  console.log('__________________');
   if (location.pathname === '' || location.pathname === '/') {
-    return <Redirect to={'/dashboard'} />;
+    return <Redirect to={'/signin'} />;
   } else if (authUser && location.pathname === '/signin') {
-    return <Redirect to={'/dashboard'} />;
+    return <Redirect to={'/sample-page'} />;
   }
 
   return (
     <React.Fragment>
       <Switch>
-        <Route path="/dashboard" component={Dashboards} />
-        <Route path="/widgets" component={Widgets} />
-        <Route path="/metrics" component={Metrics} />
-        <Route path="/components" component={Components} />
-        <Route path="/extensions" component={Extensions} />
-        <Route path="/visualization/chart" component={Charts} />
-        <Route path="/visualization/map" component={Maps} />
-        <Route path="/extra-pages" component={ExtraPages} />
-        <Route path="/apps" component={Apps} />
-        <Route path="/custom-timeline" component={CustomTimelines} />
-        <Route path="/material-timeline" component={MaterialTimelines} />
-        <Route path="/calendar" component={Calendar} />
-        <Route path="/users" component={UsersModule} />
+        <Route exact path="/" component={Login} />
+        <Route path="/time-clock" component={TimeClock} />
+        <Route path="/sample-page" component={SamplePage} />
+        <Route path="/salesorder" component={SalesOrder} />
+        <Route path="/customer" component={Customer} />
+        <Route path="/quotes" component={Quotes} />
+        <Route path="/ledger" component={Ledger} />
+        <Route path="/accounts-charts" component={AccountsChart} />
+        <Route path="/invoices" component={Invoices} />
+        <Route path="/batch-invoices" component={BatchInvoices} />
+        <Route path="/reporting" component={Reporting} />
+        <Route path="/bills" component={Bills} />
+        <Route path="/products" component={Products} />
+        <Route path="/vendors" component={Vendors} />
+        <Route path="/purchase-orders" component={PurchaseOrders} />
+        <Route path="/request-for-quotes" component={RequestForQuotes} />
+        <Route path="/pricing" component={Pricing} />
+        <Route path="/inventory" component={Inventory} />
+        <Route path="/matierial-transfer" component={MatierialTransfer} />
+        <Route path="/recieve-goods" component={RecieveGoods} />
+        <Route path="/browser" component={Browser} />
         <Route path="/signin" component={Login} />
-        <Route path="/signup" component={Signup} />
-        <Route path="/forgot-password" component={ForgotPassword} />
-        {/*<Route path="/layout-builder" component={LayoutBuilder} />*/}
+        <Route path="/setpassword" component={ResetPassword} />
+        <Route path="/signup" component={Register} />
+        <Route path="/forgot-password" component={ForgotPasswordPage} />
+        <Route component={Error404} />
       </Switch>
-
-      {location.pathname !== '/signin' && location.pathname !== '/signup' && location.pathname !== '/forgot-password' && (
-        <TourGuide />
-      )}
     </React.Fragment>
   );
 };

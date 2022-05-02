@@ -11,7 +11,6 @@ import HeaderLogin from '../../partials/Header/HeaderLogin';
 import HeaderTop from '../../partials/Header/HeaderTop';
 import CmtHeader from '../../../../../@coremat/CmtLayouts/Horizontal/Header';
 import CmtSidebar from '../../../../../@coremat/CmtLayouts/Horizontal/Sidebar';
-import Customizer from '../Customizer';
 import ContentLoader from '../../../ContentLoader';
 import CmtContent from '../../../../../@coremat/CmtLayouts/Horizontal/Content';
 import SideBar from '../../partials/SideBar';
@@ -60,7 +59,6 @@ const HorizontalDefault = ({ className, children }) => {
       }>
       <CmtContent>
         {children}
-        {/* <Customizer /> */}
         <ContentLoader />
       </CmtContent>
     </CmtHorizontalLayout>

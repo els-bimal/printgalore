@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React,  { useState, connect, useEffect } from 'react';
 import TextField from '@material-ui/core/TextField';
 import IntlMessages from '../../../utils/IntlMessages';
 import { useDispatch } from 'react-redux';
 import Button from '@material-ui/core/Button';
+import { NavLink } from 'react-router-dom';
 import { Box } from '@material-ui/core';
-import { AuhMethods } from '../../../../services/auth';
+import jwt from "jsonwebtoken";
+
+
+//import * as mutations from '../../../../redux/store/mutations';
 import ContentLoader from '../../ContentLoader';
 import { alpha, makeStyles } from '@material-ui/core/styles';
 import CmtImage from '../../../../@coremat/CmtImage';
@@ -12,8 +16,35 @@ import Typography from '@material-ui/core/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { CurrentAuthMethod } from '../../../constants/AppConstants';
-import { NavLink } from 'react-router-dom';
 import AuthWrapper from './AuthWrapper';
+
+import { AuhMethods } from '../../../../services/auth';
+
+import { setAuthUser } from '../../../../redux/actions/Auth'
+import { fetchError, fetchStart, fetchSuccess } from '../../../../redux/actions';
+
+import { useQuery, gql, useMutation } from "@apollo/client";
+
+
+const SIGN_IN = gql`
+  mutation LoginAdminUser($username : String, $password : String) {
+    LoginAdminUser(username: $username, password: $password) {
+      username
+      firstName
+      lastName
+      contactNumber
+      emailAddress
+      roleId
+      password
+      resetPassword
+      active
+      homeStore
+      dateCreated
+      token
+     }
+  }
+`;
+
 
 const useStyles = makeStyles(theme => ({
   authThumb: {
@@ -58,13 +89,59 @@ const useStyles = makeStyles(theme => ({
 }));
 //variant = 'default', 'standard'
 const SignIn = ({ method = CurrentAuthMethod, variant = 'default', wrapperVariant = 'default' }) => {
-  const [email, setEmail] = useState('demo@example.com');
-  const [password, setPassword] = useState('demo#123');
+  //const [email, setEmail] = useState('demo@example.com');
+  const [username, setusername] = useState('');
+  const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const classes = useStyles({ variant });
 
+  const [AdminSignIn, { user_loding }] = useMutation(SIGN_IN, {
+    onCompleted(result) {
+      if (result.LoginAdminUser.username) {
+        //setLogError("User Login Success");
+        var token = result.LoginAdminUser.token;
+        jwt.verify(token, "jhsjkfhwkldgladgunlfvdghjygdgjdgjawgdagoasdn", (err, verifiedJwt) => {
+          if (err) {
+            console.log(err.message);
+          } else {
+
+            localStorage.setItem('isResetOk', JSON.stringify({isOperationSuccess : !result.LoginAdminUser.resetPassword}));
+            dispatch(setAuthUser(result.LoginAdminUser))
+            console.log('------3------')
+            dispatch(fetchSuccess("Login Successfull"))
+         }
+        });
+      } 
+    },
+    onError(error) {
+      dispatch(fetchError(error.message))
+    },
+    variables: { 
+      username: username,
+      password: password,
+    },
+  });
+
+  if (user_loding) {
+    dispatch(fetchError("Please Wait...."))
+  }
+
+
+
   const onSubmit = () => {
-    dispatch(AuhMethods[method].onLogin({ email, password }));
+    if (username != "" && password != ""){
+      if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(username)){
+        dispatch(fetchStart());
+        AdminSignIn();
+      } 
+      else{
+        dispatch(fetchError("You have entered an invalid username, it should be an email address!"));
+      }
+    } 
+    else{
+      dispatch(fetchError("plaase Enter Username and Password"));
+    }
+
   };
 
   return (
@@ -84,10 +161,10 @@ const SignIn = ({ method = CurrentAuthMethod, variant = 'default', wrapperVarian
         <form>
           <Box mb={2}>
             <TextField
-              label={<IntlMessages id="appModule.email" />}
+              label={<IntlMessages id="appModule.name" />}
               fullWidth
-              onChange={event => setEmail(event.target.value)}
-              defaultValue={email}
+              onChange={event => setusername(event.target.value)}
+              defaultValue={username}
               margin="normal"
               variant="outlined"
               className={classes.textFieldRoot}
@@ -123,11 +200,6 @@ const SignIn = ({ method = CurrentAuthMethod, variant = 'default', wrapperVarian
               <IntlMessages id="appModule.signIn" />
             </Button>
 
-            <Box component="p" fontSize={{ xs: 12, sm: 16 }}>
-              <NavLink to="/signup">
-                <IntlMessages id="signIn.signUp" />
-              </NavLink>
-            </Box>
           </Box>
         </form>
 

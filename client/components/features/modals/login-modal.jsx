@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import Modal from "react-modal";
+import { connect, useSelector } from "react-redux";
 
 import { setCookies, getCookie, removeCookies } from "cookies-next";
-import { SIGN_IN, SIGN_UP, SIGN_OUT, USER_LOADED } from "../../../constants/actionTypes";
 
 import { useQuery, gql, useMutation } from "@apollo/client";
 import jwt from "jsonwebtoken";
 import ALink from "~/components/features/custom-link";
-import { setAuthUser, updateLoadUser } from "../../../store/actions/authActions";
-
-import { connect, useDispatch, useSelector } from "react-redux";
-
 var CommanFunctions = require("../../commanFunc/commanFunctions");
-
+import { userActions } from "~/store/user";
 
 const ADD_USER = gql`
   mutation Mutation(
@@ -62,7 +58,11 @@ Modal.setAppElement("#__next");
 
 function LoginModal(props) {
 
-  const dispatch = useDispatch();
+
+
+  //console.log("prps log modle")
+  console.log(props)
+
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -74,27 +74,33 @@ function LoginModal(props) {
   const [regErrors, setRegError] = useState("");
   const [userSession, setUserSesstion] = useState([]);
   const [isloged, setIsloged] = useState(false);
-  const [user1, setuser1] = useState(null)
+
+  const [userData, setUserData] = useState({});
 
   useEffect(() => {
-   
+
     const returnval = CommanFunctions.checkUserLoged();
     //console.log("---*"+JSON.stringify(returnval))
     //console.log(returnval);
-    if (returnval.success == true){
+    if (returnval.success == true) {
       setIsloged(true);
-      setUserSesstion("Welcome "+ returnval.username +" !");
-    }else{
-      setIsloged(false)
-    }
-    console.log('props ---->')
-    console.log(props)
-    console.log('state.user1')
-    //if(props.token!== undefined && props.token !== null){
-      //alert(props.token)
-    //}  
 
-  },[props]);
+      setUserSesstion("Welcome " + returnval.username + " !");
+    } else {
+      setIsloged(false)
+      props.clearUser()
+    }
+  });
+
+  useEffect(() => {
+    if (props.user.email === undefined) {
+      console.log("props undefiend")
+      if (userData !== undefined) {
+        props.setUser(userData)
+      }
+    }
+
+  }, [userData]);
 
   const [registerUser, { reg_loding }] = useMutation(ADD_USER, {
     update(proxy, result) {
@@ -121,60 +127,45 @@ function LoginModal(props) {
     },
   });
 
-  
-  if (log_loding){
+  if (log_loding) {
     setLogError("Please Wait....")
   }
-
-
   const [LoginCheck, { log_loding }] = useMutation(LOGIN_CHECK, {
-
     onCompleted(result) {
-      console.log('found')
-      console.log(result)
       if (result.LoginUser.email) {
         setLogError("User Login Success");
-        console.log('______________________________________')
-        console.log(result.LoginUser);
         var token = result.LoginUser.token;
-        
-       
-        jwt.verify(token,"jhsjkfhwkldgladgunlfvdghjygdgjdgjawgdagoasdn", (err, verifiedJwt) => {
+        //console.log(result.LoginUser);
+
+        jwt.verify(token, "jhsjkfhwkldgladgunlfvdghjygdgjdgjawgdagoasdn", (err, verifiedJwt) => {
           if (err) {
             console.log(err.message);
           } else {
-            console.log(result.LoginUser)
-            localStorage.setItem("token", token);
-            console.log('here - 2')
-            setAuthUser(result)
-            //dispatch({
-            //  type: SIGN_IN,
-            //  payload: result});
-            console.log('here - 3')
-
-
-
-
             //console.log("dd", verifiedJwt);
-            
-            //setCookies("u_det", JSON.stringify(result.LoginUser), {
-            //  path: "/",
-            //  maxAge: 3600,
-            //  sameSite: true,
-            //});
+            setCookies("u_det", JSON.stringify(result.LoginUser), {
+              path: "/",
+              maxAge: 3600,
+              sameSite: true,
+            });
             //console.log("---***"+result.LoginUser);
-          
+
             setIsloged(true);
+            setUserData(result.LoginUser)
+
+
+            /*console.log("ds")
+            console.log(props.props.user.data)
+            console.log("ds")
+            console.log(result.LoginUser)
+            props.addUser(...props.props.user.data, result.LoginUser )*/
 
             setLogError("");
             setEmail("");
             setPassword("");
             closeModal();
-            
           }
         });
       }
-      
     },
     onError(error) {
       console.log(error);
@@ -182,14 +173,9 @@ function LoginModal(props) {
     },
     variables: { email: email, password: password },
   });
-  
 
-//  const handleSubmit = (e) => {
-//    e.preventDefault();
-//    dispatch(signIn(creds.email, creds.password));
-//    setCreds({ email: "", password: "" });
-//  };
-  
+
+
 
   function closeModal() {
     document.querySelector(".ReactModal__Overlay").classList.add("removed");
@@ -240,29 +226,16 @@ function LoginModal(props) {
   const logout = async (e) => {
     e.preventDefault();
     CommanFunctions.logout();
+    props.clearUser()
     setIsloged(false)
   };
 
-  const makelogin =  (e) => {
+  const makelogin = async (e) => {
     e.preventDefault();
 
-    console.log('8888999')
     if (email != "" && password != "") {
       if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-        //dispatch({
-        //  type: SIGN_IN,
-        //  payload: {
-        //  token: null,
-        //  user1: null,
-        //  _id: null,
-
-        //}});
-        
         LoginCheck();
-        console.log('8888')
-        //dispatch(signIn(email, password));
-        //setCreds({ email: "", password: "" });
-        //LoginCheck();
       } else {
         setLogError("You have entered an invalid email address!");
       }
@@ -280,9 +253,14 @@ function LoginModal(props) {
   return (
     <>
       {isloged ? (
-        <a className="login-link d-lg-show" href="#" onClick={logout}>
-          <i className="d-icon-user"></i>{userSession} Logout
-        </a>
+        <React.Fragment>
+          <a className="login-link d-lg-show" href="/pages/account">
+            <i className="d-icon-user"></i>{userSession}
+          </a>
+          <a className="login-link d-lg-show" href="#" onClick={logout}>
+            Logout
+          </a>
+        </React.Fragment>
       ) : (
         <>
           <a className="login-link d-lg-show" href="#" onClick={openModal}>
@@ -320,7 +298,7 @@ function LoginModal(props) {
                 <TabList className="nav nav-tabs nav-fill align-items-center border-no justify-content-center mb-5">
                   <Tab className="nav-item">
                     <span className="nav-link border-no lh-1 ls-normal">
-                      Sign in-X
+                      Sign in
                     </span>
                   </Tab>
                   <li className="delimiter">or</li>
@@ -336,7 +314,7 @@ function LoginModal(props) {
                     <div>
                       <font color="red">{logErrors}</font>
                     </div>
-                    <form onSubmit={(e) => makelogin(e)} action="#">
+                    <form onSubmit={makelogin} action="#">
                       <div className="form-group mb-3">
                         <input
                           onChange={(e) => setEmail(e.target.value)}
@@ -380,7 +358,7 @@ function LoginModal(props) {
                       </div>
                       <button
                         className="btn btn-dark btn-block btn-rounded"
-                        type="button" onClick={(e) => makelogin(e)} 
+                        type="submit"
                       >
                         Login
                       </button>
@@ -544,19 +522,19 @@ function LoginModal(props) {
   );
 }
 
-
 const mapStateToProps = (state) => {
-  console.log('_____=>')
-  console.log(state)
   return {
-    user1: state.auth.user1
+    user: state.user.data
   }
 }
 
 
 const mapDispatchToProps = (dispatch) => {
-  return{
-    //setUser: (user) => dispatch({type:"SET_USER", data:user }),
+  return {
+
+    setUser: (user) => dispatch({ type: "SET_USER", data: user }),
+    clearUser: () => dispatch({ type: "REM_USER" }),
+
   }
 }
 
@@ -564,4 +542,9 @@ const mapDispatchToProps = (dispatch) => {
 
 
 
-export default connect( mapStateToProps,mapDispatchToProps )(LoginModal)
+export default connect(mapStateToProps, mapDispatchToProps)(LoginModal)
+
+
+
+
+//export default LoginModal;

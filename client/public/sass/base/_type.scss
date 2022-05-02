@@ -2,17 +2,7 @@
 		Typography
 ---------------------------------------------- */
 
-@include set-default(
-	(
-		base: (
-			list-circle: (
-				icon: (
-					font-size: 1.1rem
-				)
-			)
-		)
-	)
-);
+@include set-default((base: (list-circle: (icon: (font-size: 1.1rem)))));
 
 h1,
 h2,
@@ -36,31 +26,39 @@ h6 {
 	line-height: 1.4;
 	color: #222;
 }
+
 h1 {
 	font-size: 4rem;
 }
+
 h2 {
 	font-size: 3.4rem;
 }
+
 h3 {
 	font-size: 3rem;
 }
+
 h4 {
 	font-size: 2.4rem;
 }
+
 h5 {
 	font-size: 1.8rem;
 }
+
 h6 {
 	font-size: 1.5rem;
 }
+
 p {
 	font-family: $font-family;
 	font-size: 1.4rem;
 	line-height: 1.86;
 }
+
 blockquote {
-	margin: 0;  
+	margin: 0;
 }
 
 // List
@@ -70,16 +68,20 @@ blockquote {
 	line-height: 1.86;
 	color: #666;
 }
+
 .list-style-none {
 	list-style: none;
 }
+
 .list-type-number {
 	list-style-type: decimal;
 }
+
 .list-type-check {
 	li {
 		position: relative;
 		padding-left: 2.4rem;
+
 		&::before {
 			display: block;
 			position: absolute;
@@ -93,11 +95,13 @@ blockquote {
 		}
 	}
 }
+
 .list-circle {
 	li {
 		padding-left: 1rem;
 		margin-bottom: 1rem;
 	}
+
 	i {
 		margin-right: 1.2rem;
 		width: 4rem;
@@ -109,10 +113,12 @@ blockquote {
 		@include print_css(base, list-circle, icon);
 	}
 }
+
 .list-arrow {
 	li {
 		position: relative;
 		transition: color .3s, padding .3s;
+
 		&::before {
 			content: '\e97f';
 			display: block;
@@ -124,24 +130,41 @@ blockquote {
 			visibility: hidden;
 			font-family: "riode";
 			font-size: 1.4rem;
-			transition: opacity .3s, visibility .3s; 
+			transition: opacity .3s, visibility .3s;
 		}
+
 		&:hover,
 		&.show {
 			padding-left: 2.2rem;
-            color: $primary-color;
-            &::before {
-                visibility: visible;
-                opacity: 1;
-            }
+			color: $primary-color;
+
+			&::before {
+				visibility: visible;
+				opacity: 1;
+			}
 		}
 	}
+}
+
+// ERRORS
+.error-text {
+	color: rgb(228, 46, 46);
+	font-size: 1.25em;
+	font-weight: 600;
+}
+
+
+.approval-text {
+	color: rgb(74, 213, 95);
+	font-size: 1.25em;
+	font-weight: 600;
 }
 
 // Text Block
 .text-bd-left {
 	position: relative;
 	padding-left: 2rem;
+
 	&::before {
 		content: '';
 		display: block;
@@ -154,7 +177,7 @@ blockquote {
 	}
 }
 
-@include mq(md,max) {
+@include mq(md, max) {
 	.list-type-number {
 		margin-left: 2.3rem;
 	}

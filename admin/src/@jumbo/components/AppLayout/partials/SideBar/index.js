@@ -4,7 +4,6 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 
 import CmtVertical from '../../../../../@coremat/CmtNavigation/Vertical';
-import SidebarButtons from './SIdebarButtons';
 import { sidebarNavs } from '../menus';
 
 const useStyles = makeStyles(() => ({
@@ -32,7 +31,6 @@ const SideBar = () => {
   return (
     <PerfectScrollbar className={classes.perfectScrollbarSidebar}>
       <CmtVertical menuItems={sidebarNavs} />
-      {/* <SidebarButtons /> */}
     </PerfectScrollbar>
   );
 };

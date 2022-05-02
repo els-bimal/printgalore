@@ -1,12 +1,20 @@
-import { SEND_FORGET_PASSWORD_EMAIL, UPDATE_AUTH_USER, UPDATE_LOAD_USER } from '../../@jumbo/constants/ActionTypes';
+import { SEND_FORGET_PASSWORD_EMAIL, UPDATE_AUTH_USER, UPDATE_LOAD_USER, GET_AUTH_USER } from '../../@jumbo/constants/ActionTypes';
+//import * as mutations from '../actions/User';
 
 const INIT_STATE = {
   authUser: null,
   loadUser: false,
   send_forget_password_email: false,
+  session: {},
+  users: [],
+  authenticated: false,
+  id : ''
 };
 
 export default (state = INIT_STATE, action) => {
+  //const returnedTarget = Object.assign(target, source);
+  console.log('here-->')
+  console.log(action);
   switch (action.type) {
     case UPDATE_AUTH_USER: {
       return {

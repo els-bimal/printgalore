@@ -15,10 +15,10 @@ function Error404() {
     return (
         <main className="main">
             <Helmet>
-                <title>Ramset Automatic Gate Operators | 404</title>
+                <title>Printing Galore | 404</title>
             </Helmet>
 
-            <h1 className="d-none">Ramset Automatic Gate Operators - 404</h1>
+            <h1 className="d-none">Printing Galore - 404</h1>
 
             <div className="page-content">
                 <section

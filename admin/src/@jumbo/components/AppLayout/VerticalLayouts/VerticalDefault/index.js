@@ -7,7 +7,6 @@ import CmtSidebar from '../../../../../@coremat/CmtLayouts/Vertical/Sidebar';
 import SidebarHeader from '../../partials/SidebarHeader';
 import SideBar from '../../partials/SideBar';
 import CmtContent from '../../../../../@coremat/CmtLayouts/Vertical/Content';
-import Customizer from './Customizer';
 import ContentLoader from '../../../ContentLoader';
 import CmtFooter from '../../../../../@coremat/CmtLayouts/Vertical/Footer';
 import Footer from '../../partials/Footer';
@@ -50,7 +49,6 @@ const VerticalDefault = ({ children }) => {
       }>
       <CmtContent>
         {children}
-        {/* <Customizer /> */}
         <ContentLoader />
       </CmtContent>
     </CmtVerticalLayout>

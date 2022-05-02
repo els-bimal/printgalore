@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { Box } from '@material-ui/core';
 
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -19,6 +21,32 @@ import ContentLoader from '../../ContentLoader';
 import { CurrentAuthMethod } from '../../../constants/AppConstants';
 import AuthWrapper from './AuthWrapper';
 import { setForgetPassMailSent } from '../../../../redux/actions/Auth';
+
+import { fetchError, fetchStart, fetchSuccess } from '../../../../redux/actions';
+import { useQuery, gql, useMutation } from "@apollo/client";
+
+
+const FOGET_PASSWORD = gql`
+  mutation FogotAdminPassword($username : String) {
+    FogotAdminPassword(username: $username) {
+      username
+      firstName
+      lastName
+      contactNumber
+      emailAddress
+      roleId
+      password
+      resetPassword
+      active
+      homeStore
+      dateCreated
+      token
+     }
+  }
+`;
+
+
+
 
 const useStyles = makeStyles(theme => ({
   authThumb: {
@@ -60,7 +88,7 @@ const useStyles = makeStyles(theme => ({
 const ForgotPassword = ({ method = CurrentAuthMethod, variant = 'default', wrapperVariant = 'default' }) => {
   const { send_forget_password_email } = useSelector(({ auth }) => auth);
   const [open, setOpen] = React.useState(false);
-  const [email, setEmail] = useState('demo@example.com');
+  const [username, setusername] = useState('');
   const dispatch = useDispatch();
   const classes = useStyles({ variant });
   const history = useHistory();
@@ -82,8 +110,39 @@ const ForgotPassword = ({ method = CurrentAuthMethod, variant = 'default', wrapp
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [send_forget_password_email]);
 
+  const [fogetAdminPassword, { user_loding }] = useMutation(FOGET_PASSWORD, {
+    onCompleted(result) {
+      if (result.FogotAdminPassword.username) {
+          dispatch(fetchSuccess("Reset passoerd sent to user"))
+          //dispatch(AuhMethods[method].onForgotPassword({ username : result.FogotAdminPassword.username }));
+          dispatch(setForgetPassMailSent(true));
+          //dispatch(fetchSuccess("Please check your email"));
+
+      }
+    },
+    onError(error) {
+      dispatch(fetchError(error.message));
+    },
+    variables: { 
+      username: username,
+    },
+  });
+
+  if (user_loding) {
+    dispatch(fetchError("Please Wait...."));
+  }
+
+
+
   const onSubmit = () => {
-    dispatch(AuhMethods[method].onForgotPassword({ email }));
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(username)){
+      dispatch(fetchStart());
+      fogetAdminPassword();
+    } 
+    else{
+      dispatch(fetchError("You have entered an invalid user name!"));
+    }
+
   };
 
   return (
@@ -124,27 +183,42 @@ const ForgotPassword = ({ method = CurrentAuthMethod, variant = 'default', wrapp
             <TextField
               label={<IntlMessages id="appModule.email" />}
               fullWidth
-              onChange={event => setEmail(event.target.value)}
-              defaultValue={email}
+              onChange={event => setusername(event.target.value)}
+              defaultValue={username}
               margin="normal"
               variant="outlined"
               className={classes.textFieldRoot}
             />
           </div>
+
+          <Box
+            display="flex"
+            flexDirection={{ xs: 'column', sm: 'row' }}
+            alignItems={{ sm: 'center' }}
+            justifyContent={{ sm: 'space-between' }}
+            mb={3}>
+            <Box mb={{ xs: 2, sm: 0 }}>
+              <Button onClick={onSubmit} variant="contained" color="primary">
+                <IntlMessages id="appModule.resetPassword" />
+              </Button>
+            </Box>
+
+            <Box component="p" fontSize={{ xs: 12, sm: 16 }}>
+              <NavLink to="/">
+                <IntlMessages id="appModule.Cancel" />
+              </NavLink>
+            </Box>
+          </Box>
+
+
           <div className={'mb-5'}>
-            <Button onClick={onSubmit} variant="contained" color="primary">
-              <IntlMessages id="appModule.resetPassword" />
-            </Button>
           </div>
+
+
+
 
           <div>
             <Typography>
-              Don't remember your email?
-              <span className={'ml-2'}>
-                <Link href="#">
-                  <IntlMessages id="appModule.contactSupport" />
-                </Link>
-              </span>
             </Typography>
           </div>
         </form>

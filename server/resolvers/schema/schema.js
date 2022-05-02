@@ -154,7 +154,38 @@ const typeDefs = gql`
         recent: [Post]
     }
 
-    
+    type PaymentResponse {
+        msg: String
+        paymentDetailId: String
+        status: Int
+        KeyedSaleTxnResponseData: KeyedSaleTxnResponseData 
+        errData: ErrorData
+    }
+
+    type KeyedSaleTxnResponseData {
+        success: Boolean,
+        response_code: Int,
+        status_message: String,
+        transaction_id: String,
+        approval_code: String,
+        approval_message: String,
+        avs_response: String,
+        csc_response: String,
+        external_transaction_id: String,
+        masked_card_number: String,
+    }
+
+       
+    type ErrorData{
+        success: Boolean,
+        response_code: Int,
+        status_message: String,
+        external_transaction_id: String,
+        masked_card_number: String,
+        errArr : [String]
+    }
+
+       
     type User{
         email : String
         firstName:String
@@ -175,14 +206,34 @@ const typeDefs = gql`
         password : String
         token : String
     }
-    
-    type prodcats{
+    type ProductCategoryFromProdDB{
         _id:String
-        catName: String
-        imageUrl: String
+        category: String
+        url: String
+    }
+    type ProductSizefromProdDB{
+        _id:String
+        size: String
     }
 
-    type products{
+    type ProductColorfromProdDB{
+        _id:String
+        color: String
+    }
+    type ProductBrandfromProdDB{
+        _id:String
+        brand: String
+    }
+    
+
+
+    type prodcats{
+        _id:String
+        category: String
+        url: String
+    }
+
+    type prodshop{
         _id: String
         category: String
         prodName: String
@@ -197,6 +248,33 @@ const typeDefs = gql`
         is_new: Boolean
         is_top: Boolean
         reviews: Float
+        color:String
+        size:String
+        brand:String
+    }
+    type products{
+        data:[prodshop]
+        total:Int
+    }
+
+    type productsdet{
+        _id: String
+        category: String
+        prodName: String
+        stock:Int
+        short_description : String
+        prodPrice: Float
+        large_pictures: [Media]
+        pictures:[Media]
+        ratings: Float
+        url:  String
+        is_featured: Boolean
+        is_new: Boolean
+        is_top: Boolean
+        reviews: Float
+        color:String
+        size:String
+        brand:String
     }
 
     type order{
@@ -205,17 +283,19 @@ const typeDefs = gql`
 
     type orderDet{
         _id:String
-        shipingDetails:shipinginfo
-        differentShipingDetails:shipinginfo
+        salesOrderId:Int
+        billingDetails:billingDetails
+        shippingDetails:shippingDetails
         isDeferentShip:Boolean,
         isUserAgree:Boolean,
         status:Int
-        payMethod:Int
+        payMethod:String
         dateTime:String
         total: Float
         product: [productOrder]
         isUserLoged:Boolean
         userId:String
+        paymentDetailId:String
 
         
     }
@@ -228,7 +308,22 @@ const typeDefs = gql`
 
     }
 
-    type shipinginfo{
+    type billingDetails{
+        first:String
+        last:String
+        company:String
+        country:String
+        address1:String
+        address2:String
+        state:String
+        city:String
+        phone:String
+        zip:String
+        email:String
+        adtional_info:String
+    }
+
+    type shippingDetails{
         first:String
         last:String
         company:String
@@ -274,6 +369,29 @@ const typeDefs = gql`
         adtional_info:String
     }
 
+    input CreditCard{
+        number:String
+        expiration_month:String
+        expiration_year:String
+ 
+    }
+
+    input BillingAddress{
+        name:String
+        street_address:String
+        city:String
+        state:String
+        zip:String
+    }
+
+    type ProductSearchResult {
+        products: [Product]
+        color: [String]
+        size: [String]
+        brand: [String]
+    
+    }
+
 
     type Query {
         hello: String
@@ -290,16 +408,74 @@ const typeDefs = gql`
         chkLogin(email: String!, password:String):User
         user_by_email(email: String):User
         getsProdCat:[prodcats],
-        getsProd:[products],
-        prod_by_id(_id:String):[products],
-        orderById(_id:String):[orderDet]
+        getsProd(_id:String, prodPrice:Float, color:String, size:String, brand:String, category:String, from:Int, to:Int, minprice:Float, maxprice:Float, search: String):products,
+        prod_by_id(_id:String):[productsdet],
+        orderById(_id:String):orderDet,
+        getOrdersByUserId(userId:String!):[orderDet],
+        allOrders:[orderDet],
+        getProdFromProduct:[ProductCategoryFromProdDB]
+        getSizeFromDbProduct:[ProductSizefromProdDB]
+        getColorFromDbProduct:[ProductColorfromProdDB]
+        getBrandFromDbProduct:[ProductBrandfromProdDB]
+        
+        tryPayment(credit_card: CreditCard!, csc: String!, amount: Float!, billing_address: BillingAddress!): PaymentResponse!
     }
 
+    type adminUser {
+        username: String
+        firstName: String!
+        lastName: String!
+        contactNumber: String!
+        emailAddress: String!
+        roleId: String!
+        password: String!
+        resetPassword: Boolean!
+        active: Boolean!
+        homeStore: String!
+        dateCreated: String!
+        token: String!
+    }
+    type ImageProp {
+        width: Int! 
+        height: Int! 
+        url:String!
+    }
+
+    type adminProduct {
+        productCode: String!
+        category: String!
+        prodName: String!
+        stock:Float!
+        short_description: String!
+        prodPrice: Float!
+        large_pictures: [ImageProp!]!
+        pictures:[ImageProp!]!
+        ratings: Float!
+        url: String
+        is_featured: Boolean!
+        is_new: Boolean!
+        is_top: Boolean!
+        reviews: Float!
+        color: String!
+        size: String!
+        brand: String!
+        inventorykey: String!
+        keywords: String!
+        Style: String!
+        originStore: String!
+    }
+    
+    
     type Mutation {
     createUser(email:String, firstName:String, lastName:String password:String):User!
     LoginUser(email:String, password:String):User!
-    createOrder(shipingDetails: orderInput, differentShipingDetails:orderInput, product:[productInput],isDeferentShip:Boolean, isUserAgree: Boolean, status:Int , payMethod:Int , dateTime:String, total: Float, isUserLoged:Boolean, userId:String):order! 
-
+    createOrder(billingDetails: orderInput, shippingDetails:orderInput, product:[productInput],isDeferentShip:Boolean, isUserAgree: Boolean, status:Int , payMethod:String , dateTime:String, total: Float, isUserLoged:Boolean, userId:String, paymentDetailId:String):order! 
+    LoginAdminUser(username:String, password:String):adminUser!
+    createAdminUser(username:String, firstName:String, lastName:String, emailAddress:String, contactNumber:String):adminUser!
+    ResetAdminUser(username:String, password:String, newpassword:String):adminUser!
+    FogotAdminPassword(username:String):adminUser!
+    SearchProducts(color:String, size:String, brand:String, category:String, search : String, skip : Int, limit : Int ):[adminProduct!]!
+ 
 }
 `
 

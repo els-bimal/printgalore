@@ -6,7 +6,6 @@ import makeStyles from '@material-ui/core/styles/makeStyles';
 
 import AppContext from '../contextProvider/AppContextProvider/AppContext';
 import globalStyles from '../../../theme/GlobalCss';
-import '../../../services/api/index';
 import { useDispatch, useSelector } from 'react-redux';
 import { AuhMethods } from '../../../services/auth';
 import { CurrentAuthMethod } from '../../constants/AppConstants';
@@ -47,9 +46,7 @@ const AppLayout = ({ children }) => {
   useEffect(() => {
     dispatch(AuhMethods[CurrentAuthMethod].getAuthUser());
     setLayoutLoader(false);
-
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dispatch]);
 
   if (showLayoutLoader || !loadUser) {
     return (

@@ -1,7 +1,19 @@
-const { model, Schema } = require('mongoose');
+const mongoose = require("mongoose");
+const config = require("config");
+const DBURI = config.get('DBURI')
+const db_connection = mongoose.createConnection(DBURI)
+const model = mongoose.model
+const Schema = mongoose.Schema
+
+const autoIncrement = require('mongoose-auto-increment')
+autoIncrement.initialize(db_connection);
 
 const ordersSchema = new Schema({
-    shipingDetails: {
+    salesOrderId: {
+        type: Number,
+        required: true
+    },
+    billingDetails: {
         first: String,
         last: String,
         company: String,
@@ -15,7 +27,7 @@ const ordersSchema = new Schema({
         email: String,
         adtional_info: String
     },
-    differentShipingDetails: {
+    shippingDetails: {
         first: String,
         last: String,
         company: String,
@@ -32,20 +44,30 @@ const ordersSchema = new Schema({
     product: [
         {
             prodId: String,
-            prodName:String,
+            prodName: String,
             qty: Number,
-            price:Number
+            price: Number
         },
     ],
-    isDeferentShip:Boolean,
-    isUserAgree:Boolean,
-    status:Number,
-    payMethod:Number,
-    dateTime:String,
+    isDeferentShip: Boolean,
+    isUserAgree: Boolean,
+    status: String,
+    payMethod: String,
+    dateTime: Date,
     total: Number,
-    isUserLoged:Boolean,
-    userId:String
+    isUserLoged: Boolean,
+    userId: String,
+    paymentDetailId: String
 
 });
 
-module.exports = model('orders', ordersSchema);
+ordersSchema.plugin(autoIncrement.plugin, {
+    model: 'orders',
+    field: 'salesOrderId',
+    startAt: 100150,
+    incrementBy: 1,
+    type: Number,
+    unique: true,
+});
+
+module.exports = orders = db_connection.model('orders', ordersSchema);
