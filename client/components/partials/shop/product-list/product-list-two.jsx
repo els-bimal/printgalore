@@ -1,6 +1,6 @@
 import { useEffect, useState, useLayoutEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/react-hooks';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import withApollo from '~/server/apollo';

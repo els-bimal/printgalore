@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { Box } from '@material-ui/core';
+import { NavLink } from 'react-router-dom';
 import TextField from '@material-ui/core/TextField';
+import { setForgetPassMailSent } from '../../../../redux/actions/Auth';
+
 import IntlMessages from '../../../utils/IntlMessages';
 import Button from '@material-ui/core/Button';
 import { AuhMethods } from '../../../../services/auth';
@@ -11,7 +15,31 @@ import CmtImage from '../../../../@coremat/CmtImage';
 import Typography from '@material-ui/core/Typography';
 import { CurrentAuthMethod } from '../../../constants/AppConstants';
 import AuthWrapper from './AuthWrapper';
-import { NavLink } from 'react-router-dom';
+
+import { fetchError, fetchStart, fetchSuccess } from '../../../../redux/actions';
+
+import { useQuery, gql, useMutation } from "@apollo/client";
+import { Email } from '@mui/icons-material';
+
+const CREATE_ADMIN = gql`
+  mutation createAdminUser($username : String, $firstName : String, $lastName : String, $emailAddress : String, $contactNumber : String) {
+    createAdminUser(username: $username, firstName: $firstName, lastName: $lastName, emailAddress: $emailAddress, contactNumber: $contactNumber ) {
+      username
+      firstName
+      lastName
+      contactNumber
+      emailAddress
+      roleId
+      password
+      resetPassword
+      active
+      homeStore
+      dateCreated
+      token
+     }
+  }
+`;
+
 
 const useStyles = makeStyles(theme => ({
   authThumb: {
@@ -63,14 +91,86 @@ const useStyles = makeStyles(theme => ({
 
 //variant = 'default', 'standard', 'bgColor'
 const SignUp = ({ method = CurrentAuthMethod, variant = 'default', wrapperVariant = 'default' }) => {
-  const [name, setName] = useState('Demo User');
-  const [email, setEmail] = useState('demo@example.com');
-  const [password, setPassword] = useState('demo#123');
+  const { send_forget_password_email } = useSelector(({ auth }) => auth);
+  const [username, setusername] = useState('');
+  const [firstName, setfirstName] = useState('');
+  const [lastName, setlastName] = useState('');
+  const [email, setemail] = useState('');
+  const [Phone, setPhone] = useState('');
+  const [open, setOpen] = React.useState(false);
+
   const dispatch = useDispatch();
   const classes = useStyles({ variant });
+  const history = useHistory();
+
+  useEffect(() => {
+    let timeOutStopper = null;
+    if (send_forget_password_email) {
+      setOpen(true);
+
+      timeOutStopper = setTimeout(() => {
+        dispatch(setForgetPassMailSent(false));
+        history.push('/');
+      }, 1500);
+    }
+
+    return () => {
+      if (timeOutStopper) clearTimeout(timeOutStopper);
+    };
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [send_forget_password_email]);
+
+
+  const [CreateAdmin, { user_loding }] = useMutation(CREATE_ADMIN, {
+    onCompleted(result) {
+      if (result.createAdminUser.username) {
+        dispatch(fetchSuccess("Admin User Successfully Created"))
+        dispatch(setForgetPassMailSent(true));
+        
+      } 
+    },
+    onError(error) {
+      dispatch(fetchError(error.message))
+    },
+    variables: { 
+      username: username, 
+      firstName: firstName, 
+      lastName: lastName, 
+      emailAddress: email, 
+      contactNumber: Phone   
+    },
+  });
+
+  if (user_loding) {
+    dispatch(fetchError("Please Wait...."))
+  }
+
+
+
 
   const onSubmit = () => {
-    dispatch(AuhMethods[method].onRegister({ name, email, password }));
+    if(
+      username.trim() === '' || 
+      firstName.trim() === '' ||
+      lastName.trim() === '' || 
+      email.trim() === '' || 
+      Phone.trim() === ''   
+
+    ){
+      dispatch(fetchError("Please enter all the details"));
+
+    }
+    else{
+      if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(username)){
+        CreateAdmin();
+      }
+      else{
+        dispatch(fetchError("You have entered an invalid username, it should be an email address!"));
+      }
+
+    }
+
+    //dispatch(AuhMethods[method].onRegister({ name, email, password }));
   };
 
   return (
@@ -92,8 +192,30 @@ const SignUp = ({ method = CurrentAuthMethod, variant = 'default', wrapperVarian
             <TextField
               label={<IntlMessages id="appModule.name" />}
               fullWidth
-              onChange={event => setName(event.target.value)}
-              defaultValue={name}
+              onChange={event => setusername(event.target.value)}
+              defaultValue={username}
+              margin="normal"
+              variant="outlined"
+              className={classes.textFieldRoot}
+            />
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label={<IntlMessages id="appModule.firstname" />}
+              fullWidth
+              onChange={event => setfirstName(event.target.value)}
+              defaultValue={firstName}
+              margin="normal"
+              variant="outlined"
+              className={classes.textFieldRoot}
+            />
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label={<IntlMessages id="appModule.lastname" />}
+              fullWidth
+              onChange={event => setlastName(event.target.value)}
+              defaultValue={lastName}
               margin="normal"
               variant="outlined"
               className={classes.textFieldRoot}
@@ -103,7 +225,7 @@ const SignUp = ({ method = CurrentAuthMethod, variant = 'default', wrapperVarian
             <TextField
               label={<IntlMessages id="appModule.email" />}
               fullWidth
-              onChange={event => setEmail(event.target.value)}
+              onChange={event => setemail(event.target.value)}
               defaultValue={email}
               margin="normal"
               variant="outlined"
@@ -112,17 +234,16 @@ const SignUp = ({ method = CurrentAuthMethod, variant = 'default', wrapperVarian
           </Box>
           <Box mb={2}>
             <TextField
-              type="password"
-              label={<IntlMessages id="appModule.password" />}
+              label={<IntlMessages id="appModule.phone" />}
               fullWidth
-              onChange={event => setPassword(event.target.value)}
-              defaultValue={password}
+              onChange={event => setPhone(event.target.value)}
+              defaultValue={Phone}
               margin="normal"
               variant="outlined"
               className={classes.textFieldRoot}
             />
           </Box>
-
+ 
           <Box
             display="flex"
             flexDirection={{ xs: 'column', sm: 'row' }}
@@ -135,20 +256,14 @@ const SignUp = ({ method = CurrentAuthMethod, variant = 'default', wrapperVarian
               </Button>
             </Box>
 
-            <Typography className={classes.alrTextRoot}>
-              <NavLink to="/signin">
-                <IntlMessages id="signUp.alreadyMember" />
+            <Box component="p" fontSize={{ xs: 12, sm: 16 }}>
+              <NavLink to="/">
+                <IntlMessages id="appModule.Cancel" />
               </NavLink>
-            </Typography>
+            </Box>
           </Box>
         </form>
 
-        <Box mb={3}>{dispatch(AuhMethods[method].getSocialMediaIcons())}</Box>
-
-        <Typography className={classes.textAcc}>
-          Have an account?
-          <NavLink to="/signin">Sign In</NavLink>
-        </Typography>
         <ContentLoader />
       </Box>
     </AuthWrapper>

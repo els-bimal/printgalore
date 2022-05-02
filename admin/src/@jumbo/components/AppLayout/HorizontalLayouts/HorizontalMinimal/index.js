@@ -3,7 +3,6 @@ import clsx from 'clsx';
 
 import SideBar from '../../partials/SideBar';
 import HeaderLogin from '../../partials/Header/HeaderLogin';
-import Customizer from '../Customizer';
 import ContentLoader from '../../../ContentLoader';
 import MainHeader from './MainHeader';
 import useStyles from './index.style';
@@ -54,7 +53,6 @@ const HorizontalMinimal = ({ className, children }) => {
       }>
       <CmtContent>
         {children}
-        {/* <Customizer /> */}
         <ContentLoader />
       </CmtContent>
     </CmtHorizontalLayout>

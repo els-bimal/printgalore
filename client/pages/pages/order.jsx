@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import moment from 'moment'
 import Helmet from 'react-helmet';
 import React, { useEffect, useState } from 'react';
 import ALink from '~/components/features/custom-link';
@@ -10,6 +11,7 @@ import { useQuery, gql, useMutation } from "@apollo/client";
 
 
 function Order(props) {
+    console.log(props)
     const { cartList } = props;
     const router = useRouter()
     const { oid } = router.query
@@ -21,34 +23,33 @@ function Order(props) {
 
     const [orderdProduct, setOrderdProduct] = useState([])
 
+    const { _id, status, dateTime, total, payMethod, salesOrderId } = myorder;
 
-    const { _id, status, dateTime, total, payMethod } = myorder;
     const { first, last, company, country, address1, address2, state, city, phone, zip } = shipDet;
-
-
 
     const { data, loading, error } = useQuery(GET_ORDERBY_ID, { variables: { id: oid } });
     useEffect(() => {
 
         if (data) {
+            console.log(data)
             //console.log(" x ->"+ JSON.stringify(data.orderById));
 
-            setMyOrders(data.orderById[0]);
-            setOrderdProduct(data.orderById[0].product)
-            setEmail(data.orderById[0].shipingDetails.email)
-            if (data.orderById[0].isDeferentShip == true) {
+            setMyOrders(data.orderById);
+            setOrderdProduct(data.orderById.product)
+            setEmail(data.orderById.billingDetails.email)
+            if (data.orderById.isDeferentShip == true) {
                 console.log("true")
-                
-                setShipDet(data.orderById[0].differentShipingDetails)
+
+                setShipDet(data.orderById.shippingDetails)
             } else {
                 console.log("false")
-                setShipDet(data.orderById[0].shipingDetails)
+                setShipDet(data.orderById.billingDetails)
             }
 
             if (!loading) {
                 //console.log( data.orderById);
-                console.log(data.orderById[0].shipingDetails.email);
-                //console.log(data.orderById[0].product);
+                console.log(data.orderById.billingDetails.email);
+                //console.log(data.orderById.product);
 
                 //console.log(myorder)
             }
@@ -70,9 +71,18 @@ function Order(props) {
 
             <div className="page-content pt-7 pb-10 mb-10">
                 <div className="step-by pr-4 pl-4">
-                    <h3 className="title title-simple title-step"><ALink href="/pages/cart">1. Shopping Cart</ALink></h3>
-                    <h3 className="title title-simple title-step"><ALink href="/pages/checkout">2. Checkout</ALink></h3>
-                    <h3 className="title title-simple title-step active"><ALink href="#">3. Order Complete</ALink></h3>
+                    <h3 className="title title-simple title-step">
+                        1. Shopping Cart
+                    </h3>
+                    <h3 className="title title-simple title-step">
+                        2. Checkout
+                    </h3>
+                    <h3 className="title title-simple title-step ">
+                        3. Payment
+                    </h3>
+                    <h3 className="title title-simple title-step active">
+                        3. Order Complete
+                    </h3>
                 </div>
                 <div className="container mt-8">
                     <div className="order-message mr-auto ml-auto">
@@ -99,7 +109,7 @@ function Order(props) {
                     <div className="order-results">
                         <div className="overview-item">
                             <span>Order number:</span>
-                            <strong> {_id} </strong>
+                            <strong> {salesOrderId} </strong>
                         </div>
                         <div className="overview-item">
                             <span>Status:</span>
@@ -111,7 +121,7 @@ function Order(props) {
                         </div>
                         <div className="overview-item">
                             <span>Date:</span>
-                            <strong> {dateTime} </strong>
+                            <strong> {moment(parseInt(dateTime)).format("MM-DD-YY hh:mm:ss a")} </strong>
                         </div>
                         <div className="overview-item">
                             <span>Email:</span>
@@ -124,9 +134,7 @@ function Order(props) {
                         <div className="overview-item">
                             <span>Payment method:</span>
                             <strong>
-                                {payMethod === 0 && "CASH ON DELIVERY"}
-                                {payMethod === 1 && "CHECK PAYMENT"}
-                                {payMethod === 2 && "VISA - MASTER"}
+                                {payMethod}
                             </strong>
                         </div>
                     </div>
@@ -178,9 +186,9 @@ function Order(props) {
                                         <h4 className="summary-subtitle">Payment method:</h4>
                                     </td>
                                     <td className="summary-subtotal-price">
-                                        {payMethod === 0 && "CASH ON DELIVERY"}
-                                        {payMethod === 1 && "CHECK PAYMENT"}
-                                        {payMethod === 2 && "VISA - MASTER"}
+                                        <strong>
+                                            {payMethod}
+                                        </strong>
                                     </td>
                                 </tr>
                                 <tr className="summary-subtotal">
@@ -201,9 +209,7 @@ function Order(props) {
                             {company}<br />
                             {address1}<br />
                             {address2}<br />
-                            {state}<br />
-                            {city}<br />
-                            {zip}<br />
+                            {city}, {state} {zip}<br />
                             {phone}<br />
 
 
@@ -211,7 +217,11 @@ function Order(props) {
                         <p className="email">{email}</p>
                     </div>
 
-                    <ALink href="/shop" className="btn btn-icon-left btn-dark btn-back btn-rounded btn-md mb-4"><i className="d-icon-arrow-left"></i> Back to List</ALink>
+                    <div className='w-100 d-flex justify-content-between'>
+                        <ALink href="/shop" className="btn btn-icon-left btn-dark btn-back btn-rounded btn-md mb-4"><i className="d-icon-arrow-left"></i>Back to Shop</ALink>
+
+                        {/* <ALink href="/pages/account/" className="btn btn-icon-right btn-dark btn-back btn-rounded btn-md mb-4">Go To Account<i className="d-icon-arrow-right"></i></ALink> */}
+                    </div>
                 </div>
             </div>
         </main>

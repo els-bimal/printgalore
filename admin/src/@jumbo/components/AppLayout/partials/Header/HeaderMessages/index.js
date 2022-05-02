@@ -1,11 +1,10 @@
 import React from 'react';
-import { Box, IconButton, makeStyles, Popover, Tooltip, useTheme } from '@material-ui/core';
-import { alpha } from '@material-ui/core/styles';
+import { Box, IconButton, Popover, Tooltip, useTheme } from '@material-ui/core';
+import { alpha, makeStyles } from '@material-ui/core/styles';
 import MessageIcon from '@material-ui/icons/Message';
 import CmtCardHeader from '../../../../../../@coremat/CmtCard/CmtCardHeader';
 import CmtCardContent from '../../../../../../@coremat/CmtCard/CmtCardContent';
 import CmtCard from '../../../../../../@coremat/CmtCard';
-import { intranet } from '../../../../../../@fake-db';
 import CmtList from '../../../../../../@coremat/CmtList';
 import MessageItem from './MessageItem';
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -51,8 +50,8 @@ const actions = [
   },
 ];
 
+const messages = [];
 const HeaderMessages = () => {
-  const { messages } = intranet;
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const theme = useTheme();
@@ -69,7 +68,7 @@ const HeaderMessages = () => {
   const id = open ? 'simple-popover' : undefined;
 
   return (
-    <Box>
+    <div>
       <Tooltip title="Messages">
         <IconButton onClick={onOpenPopOver} className={clsx(classes.iconRoot, 'Cmt-appIcon')}>
           <MessageIcon />
@@ -113,7 +112,7 @@ const HeaderMessages = () => {
           </CmtCardContent>
         </CmtCard>
       </Popover>
-    </Box>
+    </div>
   );
 };
 

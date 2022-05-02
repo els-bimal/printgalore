@@ -5,23 +5,27 @@ import { useQuery, gql } from "@apollo/client";
 import ALink from "~/components/features/custom-link";
 import { useState, useEffect } from "react";
 import { fadeIn } from "~/utils/data/keyframes";
-import { GET_CAT } from "~/server/queries";
+import { ProdCats } from "~/server/queries";
 
 
 
 function CategorySection() {
   const [cat, setCat] = useState([]);
 
-  const { data, loading, error } = useQuery(GET_CAT);
+  const response = useQuery(ProdCats);
+
   useEffect(() => {
-    if (data) {
-      setCat(data.getsProdCat);
+
+    if (response.loading) {
+      console.log("Loading list of cat")
+    } else {
+      //console.log(response.data.getsProdCat)
+      setCat(response.data.getsProdCat);
+      
     }
-  });
+  }, [response]);
 
-  //if (loading) return <div>Loading</div>;
-  //if (error) return <div>error</div>;
-
+ 
   return (
     <Reveal keyframes={fadeIn} delay={300} duration={1200} triggerOnce>
       <section className="pt-10 mt-7">
@@ -35,12 +39,12 @@ function CategorySection() {
                   <ALink
                     href={{
                       pathname: "/shop",
-                      query: { category: category.catName },
+                      query: { category: category.category },
                     }}
                   >
                     <figure className="category-media">
                       <LazyLoadImage
-                        src={category.imageUrl}
+                        src={category.url}
                         alt="Intro Slider"
                         effect="opacity; transform"
                         width={280}
@@ -51,7 +55,7 @@ function CategorySection() {
                     <div className="category-content">
                       <h4 className="category-name font-weight-bold ls-l">
                         {" "}
-                        {category.catName} 
+                        {category.category} 
                       </h4>
                     </div>
                   </ALink>

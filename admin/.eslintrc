@@ -7,11 +7,8 @@
   "plugins": [
     "import",
     "prettier"
-  ],
-  "extends": [
-    "react-app",
-    "plugin:prettier/recommended"
-  ],
+  ],  
+  "extends": ["next/babel","next/core-web-vitals"],
   "parser": "babel-eslint",
   "parserOptions": {
     "jsx": "react",

@@ -8,21 +8,26 @@ import configureStore, { history } from './redux/store';
 import AppWrapper from './@jumbo/components/AppWrapper';
 import AppContextProvider from './@jumbo/components/contextProvider/AppContextProvider';
 import Routes from './routes';
+import { ApolloProvider } from "@apollo/client";
+import client from "./apollo-client";
+
 
 export const store = configureStore();
 
 const App = () => (
-  <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <AppContextProvider>
-        <AppWrapper>
-          <Switch>
-            <Routes />
-          </Switch>
-        </AppWrapper>
-      </AppContextProvider>
-    </ConnectedRouter>
-  </Provider>
+  <ApolloProvider client={client} >
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <AppContextProvider>
+          <AppWrapper>
+            <Switch>
+              <Routes />
+            </Switch>
+          </AppWrapper>
+        </AppContextProvider>
+      </ConnectedRouter>
+    </Provider>
+  </ApolloProvider>
 );
 
 export default App;

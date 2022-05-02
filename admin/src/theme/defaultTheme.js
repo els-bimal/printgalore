@@ -1,6 +1,6 @@
 import createBreakpoints from '@material-ui/core/styles/createBreakpoints';
 import { Fonts } from '../@jumbo/constants/ThemeOptions';
-import { grey, blueGrey } from '@material-ui/core/colors';
+import { indigo, pink } from '@material-ui/core/colors';
 
 const breakpoints = createBreakpoints({
   values: {
@@ -25,22 +25,21 @@ const defaultTheme = {
   spacing: 4,
   direction: 'ltr',
   palette: {
-    type: 'dark',
+    type: 'light',
     common: {
       black: '#000',
       white: '#fff',
       dark: '#020202',
     },
-    // primary: black,
-    primary: grey,
-    secondary: blueGrey,
+    primary: indigo,
+    secondary: pink,
     sidebar: {
       bgColor: '#fff',
       textColor: 'rgba(0, 0, 0, 0.6)',
       textDarkColor: 'rgba(0, 0, 0, 0.87)',
-      textActiveColor: '#004CED',
+      textActiveColor: '#6200EE',
       navHoverBgColor: 'rgb(229, 229, 229)',
-      navActiveBgColor: 'rgb(70, 161, 252)',
+      navActiveBgColor: 'rgb(239, 229, 253)',
       borderColor: 'rgba(33, 33, 33, 0.08)',
     },
     horizontalNav: {
@@ -48,9 +47,9 @@ const defaultTheme = {
       navigationActiveColor: 'rgba(255, 255, 255, 1)',
       textColor: 'rgba(0, 0, 0, 0.6)',
       textDarkColor: 'rgba(0, 0, 0, 0.87)',
-      textActiveColor: '#004CED',
+      textActiveColor: '#6200EE',
       menuHoverBgColor: 'rgb(229, 229, 229)',
-      menuActiveBgColor: 'rgb(70, 161, 252)',
+      menuActiveBgColor: 'rgb(239, 229, 253)',
     },
     background: {
       paper: '#FFFFFF',

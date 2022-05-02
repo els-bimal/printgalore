@@ -6,7 +6,7 @@ import CmtCardHeader from '../../../../../../@coremat/CmtCard/CmtCardHeader';
 import CmtCardContent from '../../../../../../@coremat/CmtCard/CmtCardContent';
 import CmtList from '../../../../../../@coremat/CmtList';
 import CmtCard from '../../../../../../@coremat/CmtCard';
-import { intranet } from '../../../../../../@fake-db';
+
 import NotificationItem from './NotificationItem';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import clsx from 'clsx';
@@ -59,8 +59,9 @@ const actions = [
   },
 ];
 
+const headerNotifications = [];
+
 const HeaderNotifications = () => {
-  const { headerNotifications } = intranet;
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [counter, setCounter] = React.useState(5);

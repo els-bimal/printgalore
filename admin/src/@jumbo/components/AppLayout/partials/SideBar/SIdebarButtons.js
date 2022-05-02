@@ -14,7 +14,6 @@ import SidebarThemeContext from '../../../../../@coremat/CmtLayouts/SidebarTheme
 
 const useStyles = makeStyles(theme => ({
   list: {
-    borderTop: props => `1px solid ${props.sidebarTheme.borderColor}`,
     padding: '30px 24px',
     marginTop: 10,
     '.Cmt-miniLayout .Cmt-sidebar-content:not(:hover) &': {

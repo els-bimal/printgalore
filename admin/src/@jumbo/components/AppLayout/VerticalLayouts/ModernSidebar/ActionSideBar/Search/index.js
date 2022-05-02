@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, makeStyles } from '@material-ui/core';
 import SearchHistory from './SearchHistory';
 import _ from 'lodash';
-import { intranet } from '../../../../../../../@fake-db';
 import CmtList from '../../../../../../../@coremat/CmtList';
 import EmptyResult from '../EmptyResult';
 import CmtMediaObject from '../../../../../../../@coremat/CmtMediaObject';
@@ -49,7 +48,7 @@ const Search = () => {
   const classes = useStyles();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [keywords, setKeywords] = useState(searchKeywords);
-  const [requests, setRequests] = useState(intranet.newRequests);
+  const [requests, setRequests] = useState([]);
   const totalKeywords = useMemo(() => keywords.length, [keywords]);
   const totalRequests = useMemo(() => requests.length, [requests]);
 
@@ -70,7 +69,7 @@ const Search = () => {
         ),
       );
     } else {
-      setRequests(intranet.newRequests);
+      setRequests([]);
     }
   }, [searchKeyword]);
 

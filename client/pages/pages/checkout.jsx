@@ -14,36 +14,30 @@ import { toDecimal, getTotalPrice } from "~/utils";
 import { useQuery, gql, useMutation } from "@apollo/client";
 import { CHECKOUT_MUTA, GET_USER } from "~/server/queries";
 import { cartActions } from "~/store/cart";
-//import { userActions } from "~/store/user";
-import { getUser } from "~/store/actions/authActions"
+import { userActions } from "~/store/user";
 import { getDomainLocale } from "next/dist/shared/lib/router/router";
 var CommanFunctions = require("../../components/commanFunc/commanFunctions");
 
 //var CommanFunctions = require("../../components/commanFunc/commanFunctions");
 
 function Checkout(props) {
-  console.log(props)
+  //console.log("props")
+  //console.log(props)
   const router = useRouter();
   const { cartList, initialState } = props;
   const [isFirst, setFirst] = useState(false);
 
   //ordder details\
   const [pageError, SetpageError] = useState();
-  const [shipingDetails, setShipingDetails] = useState({});
-  const [differentShipingDetails, setDeferentShipingDetails] = useState({});
+  const [billingDetails, setBillingDetails] = useState({});
+  const [shippingDetails, setDeferentShipingDetails] = useState({});
   const [allInfoData, setAllInfoData] = useState([]);
   const [isDeferentShip, SetIsDeferentShip] = useState(false);
   const [isUserAgree, SetIsUserAgree] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isUserLoged, setIsUserLoged] = useState(false);
   const [uidEmail, setUidEmail] = useState();
-  const [user, setuser] = useState(null)
-
-  useEffect(() => {
-    console.log('____00____')
-    console.log(props)
-  },[props]);
-
+  const [paymentMethod, setPaymentMethod] = useState()
 
 
   /*
@@ -53,31 +47,60 @@ function Checkout(props) {
   console.log(props)
   console.log(user.data)
   */
-  const [check_out, { reg_loding }] = useMutation(CHECKOUT_MUTA, {
-    update(proxy, result) {
-      console.log(result.data.createOrder._id);
-      initialState();
-      router.push("order/?oid=" + result.data.createOrder._id);
-    },
-    onError(error) {
-      console.log(error.message);
-    },
-    variables: {
-      shipingDetails: shipingDetails,
-      differentShipingDetails: differentShipingDetails,
-      product: allInfoData,
-      isDeferentShip: isDeferentShip,
-      isUserAgree: isUserAgree,
-      status: 0,
-      payMethod: 0,
-      dateTime: Date(),
-      total: totalPrice,
-      isUserLoged:isUserLoged,
-      userId:uidEmail
-     
 
-    },
-  });
+  function to_payment() {
+    let address = JSON.stringify(Object.values(billingDetails))
+    router.push({
+      pathname: `payment/`,
+      query: {
+        "name": `${billingDetails.first} ${billingDetails.last}`,
+        "street_address": billingDetails.address1,
+        "city": billingDetails.city,
+        "state": billingDetails.state,
+        "zip": billingDetails.zip,
+        "amount": toDecimal(getTotalPrice(cartList)),
+        "userEmail": props.user.email,
+        "billingDetails": JSON.stringify(billingDetails),
+        "shippingDetails": JSON.stringify(shippingDetails),
+        "isDeferentShip": isDeferentShip,
+      }
+    });
+
+
+
+  }
+
+
+  // const [to_payment, { reg_loding }] = useMutation(CHECKOUT_MUTA, {
+  //   update(proxy, result) {
+  //     console.log(result.data.createOrder._id);
+  //     initialState();
+  //   },
+  //   onError(error) {
+  //     console.log(error.message);
+  //   },
+
+  //   variables: {
+  //     billingDetails: billingDetails,
+  //     shippingDetails: shippingDetails,
+  //     product: allInfoData,
+  //     isDeferentShip: isDeferentShip,
+  //     isUserAgree: isUserAgree,
+  //     status: 0,
+  //     payMethod: 0,
+  //     dateTime: Date(),
+  //     total: totalPrice,
+  //     isUserLoged: isUserLoged,
+  //     userId: props.user.email
+
+
+  //   },
+  // });
+
+
+
+
+
 
   function deferentShip(e) {
     if (isDeferentShip === true) {
@@ -97,7 +120,7 @@ function Checkout(props) {
 
   function addDefShopDetails(e) {
     setDeferentShipingDetails({
-      ...differentShipingDetails,
+      ...shippingDetails,
       [e.target.name]: e.target.value,
     });
   }
@@ -105,7 +128,7 @@ function Checkout(props) {
 
 
   function addShopDetails(e) {
-    setShipingDetails({ ...shipingDetails, [e.target.name]: e.target.value });
+    setBillingDetails({ ...billingDetails, [e.target.name]: e.target.value });
   }
 
   const placeOrder = async (e) => {
@@ -121,10 +144,10 @@ function Checkout(props) {
 
     var found = 0;
     for (var i = 0; i < req_array.length; i++) {
-      //console.log(key + " -> " + shipingDetails[key]);
+      //console.log(key + " -> " + billingDetails[key]);
       found = 0;
       var feild_txt = req_array[i].split(":");
-      for (var key in shipingDetails) {
+      for (var key in billingDetails) {
         if (key === feild_txt[0]) {
           found = 1;
         }
@@ -143,10 +166,10 @@ function Checkout(props) {
       var req_array = requiredfeeildList.split(",");
       var found = 0;
       for (var i = 0; i < req_array.length; i++) {
-        //console.log(key + " -> " + shipingDetails[key]);
+        //console.log(key + " -> " + billingDetails[key]);
         found = 0;
         var feild_txt = req_array[i].split(":");
-        for (var key in differentShipingDetails) {
+        for (var key in shippingDetails) {
           if (key === feild_txt[0]) {
             found = 1;
           }
@@ -164,7 +187,7 @@ function Checkout(props) {
       return;
     }
 
-    const { email } = shipingDetails;
+    const { email } = billingDetails;
     if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
 
     } else {
@@ -177,10 +200,19 @@ function Checkout(props) {
     setAllInfoData([]);
     SetpageError("");
 
+    if (!paymentMethod) {
+      SetpageError("Please Select a Payment Method")
+      return
+    }
+
+
     if (isUserAgree === false) {
       SetpageError("Please Make Accept a Agreement ");
     } else {
       SetpageError(null);
+
+
+
 
       /*
       const arr_c = [
@@ -191,20 +223,6 @@ function Checkout(props) {
       setAllInfoData(arr_c);
       */
 
-      for (var i = 0; i < cartList.length; i++) {
-        /*console.log(cartList[i].qty);
-        console.log(cartList[i].product._id);*/
-        //console.log(cartList[i].product.prodPrice);
-
-        var ddd = {
-          prodId: cartList[i].product._id,
-          prodName: cartList[i].product.prodName,
-          qty: cartList[i].qty,
-          price: cartList[i].product.prodPrice,
-        };
-        //console.log((ddd))
-        await setAllInfoData((allInfoData) => [...allInfoData, ddd]);
-      }
 
       const returnval = CommanFunctions.checkUserLoged();
       //console.log("---*"+JSON.stringify(returnval))
@@ -214,19 +232,37 @@ function Checkout(props) {
         //console.log("Welcome")
         //console.log(returnval.email)
         setUidEmail(returnval.email)
-        check_out();
-      } else{
+        to_payment();
+      } else {
         setIsUserLoged(false)
-        check_out();
+        to_payment();
       }
 
 
       //console.log((allInfoData))
-      
+
     }
   };
 
   //const [isloged, setIsloged] = useState(false);
+  useEffect(() => {
+    //console.log(JSON.stringify(cartList));
+    //console.log("load");
+    //console.log(isDeferentShip)
+    //console.log(JSON.stringify(billingDetails));
+    /*
+        const returnval = CommanFunctions.checkUserLoged();
+        console.log("---*" + JSON.stringify(returnval))
+        //console.log(returnval);
+        if (returnval.success == true) {
+            //setIsloged(true);
+        } else {
+            //setIsloged(false);
+        }
+        */
+
+  });
+
   return (
     <main className="main checkout">
       <Helmet>
@@ -239,17 +275,24 @@ function Checkout(props) {
         className={`page-content pt-7 pb-10 ${cartList.length > 0 ? "mb-10" : "mb-2"
           }`}
       >
+
+
         <div className="step-by pr-4 pl-4">
           <h3 className="title title-simple title-step">
-            <ALink href="/pages/cart">1. Shopping Cart</ALink>
+            1. Shopping Cart
           </h3>
           <h3 className="title title-simple title-step active">
-            <ALink href="#">2. Checkout</ALink>
+            2. Checkout
           </h3>
           <h3 className="title title-simple title-step">
-            <ALink href="/pages/order">3. Order Complete</ALink>
+            3. Payment
+          </h3>
+          <h3 className="title title-simple title-step">
+            3. Order Complete
           </h3>
         </div>
+
+
         <div className="container mt-7">
           {cartList.length > 0 ? (
             <>
@@ -694,21 +737,21 @@ function Checkout(props) {
                                     <div className="custom-radio">
                                       <input
                                         type="radio"
-                                        id="flat_rate"
+                                        id="stardard"
                                         name="shipping"
                                         className="custom-control-input"
                                         defaultChecked
                                       />
                                       <label
                                         className="custom-control-label"
-                                        htmlFor="flat_rate"
+                                        htmlFor="stardard"
                                       >
-                                        Flat rate
+                                        Standard Shipping
                                       </label>
                                     </div>
                                   </li>
 
-                                  <li>
+                                  {/* <li>
                                     <div className="custom-radio">
                                       <input
                                         type="radio"
@@ -723,9 +766,9 @@ function Checkout(props) {
                                         Free shipping
                                       </label>
                                     </div>
-                                  </li>
+                                  </li> */}
 
-                                  <li>
+                                  {/* <li>
                                     <div className="custom-radio">
                                       <input
                                         type="radio"
@@ -740,7 +783,7 @@ function Checkout(props) {
                                         Local pickup
                                       </label>
                                     </div>
-                                  </li>
+                                  </li> */}
                                 </ul>
                               </td>
                             </tr>
@@ -768,24 +811,17 @@ function Checkout(props) {
                                 className={`text-body text-normal ls-m ${isFirst ? "collapse" : ""
                                   }`}
                                 onClick={() => {
+                                  setPaymentMethod("Credit Card")
                                   !isFirst && setFirst(!isFirst);
                                 }}
                               >
-                                Check payments
+                                Credit Card
                               </ALink>
                             </div>
 
-                            <Collapse in={isFirst}>
-                              <div className="card-wrapper">
-                                <div className="card-body ls-m overflow-hidden">
-                                  Please send a check to Store Name, Store
-                                  Street, Store Town, Store State / County,
-                                  Store Postcode.
-                                </div>
-                              </div>
-                            </Collapse>
 
-                            <div className="card-header">
+
+                            {/* <div className="card-header">
                               <ALink
                                 href="#"
                                 className={`text-body text-normal ls-m ${!isFirst ? "collapse" : ""
@@ -796,9 +832,9 @@ function Checkout(props) {
                               >
                                 Cash on delivery
                               </ALink>
-                            </div>
+                            </div> */}
 
-                            <Collapse in={!isFirst}>
+                            {/* <Collapse in={!isFirst}>
                               <div className="card-wrapper">
                                 <div className="card-body ls-m overflow-hidden">
                                   Please send a check to Store Name, Store
@@ -806,7 +842,7 @@ function Checkout(props) {
                                   Store Postcode.
                                 </div>
                               </div>
-                            </Collapse>
+                            </Collapse> */}
                           </div>
                         </div>
                         <div className="form-checkbox mt-4 mb-5">
@@ -832,7 +868,7 @@ function Checkout(props) {
                           onClick={placeOrder}
                           className="btn btn-dark btn-rounded btn-order"
                         >
-                          Place Order
+                          Payment
                         </button>
                       </div>
                     </div>
@@ -861,13 +897,14 @@ function Checkout(props) {
 }
 
 function mapStateToProps(state) {
-
   return {
     cartList: state.cart.data ? state.cart.data : [],
-    user: state.auth.user1
+    //user: state.user.data,
+    user: state.user.data
   };
 }
 
 export default connect(mapStateToProps, {
-  initialState: cartActions.initialState,
+  initialState: cartActions.initialState
+
 })(Checkout);

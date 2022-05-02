@@ -19,6 +19,11 @@ import CtaSection from '~/components/partials/home/cta-section';
 import BrandSection from '~/components/partials/home/brand-section';
 import BlogSection from '~/components/partials/home/blog-section';
 import SmallCollection from '~/components/partials/product/small-collection';
+import AboutBlock from '~/pages/elements/about-block'
+import AboutMainBlock from '~/pages/elements/about-main-block'
+import UniformBlock from '~/pages/elements/uniform-block'
+import BannersBlock from '~/pages/elements/banners-block'
+import DecoratedApparelBlock from '~/pages/elements/decorated-apparel-block'
 
 function HomePage() {
     const { data, loading, error } = useQuery(GET_HOME_DATA, { variables: { productsCount: 7 } });
@@ -28,7 +33,7 @@ function HomePage() {
     const onSale = data && data.specialProducts.onSale;
     const posts = data && data.posts.data;
 
-    
+
 
     return (
         <div className="main home">
@@ -46,11 +51,16 @@ function HomePage() {
                     {/* <ServiceBox /> */}
                 </div>
 
+                <AboutBlock />
                 <CategorySection />
+                <UniformBlock />
+                <AboutMainBlock />
+                <BannersBlock />
+                <DecoratedApparelBlock />
 
                 {/* <BestCollection products={bestSelling} loading={loading} /> */}
 
-                <DealSection />
+                {/* <DealSection /> */}
 
                 {/* <FeaturedCollection products={featured} loading={loading} /> */}
 
@@ -58,7 +68,7 @@ function HomePage() {
 
                 {/* <BlogSection posts={posts} /> */}
 
-                <BrandSection />
+                {/* <BrandSection /> */}
 
                 {/* <SmallCollection featured={featured} latest={latest} bestSelling={bestSelling} onSale={onSale} loading={loading} /> */}
             </div>

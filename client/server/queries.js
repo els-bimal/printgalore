@@ -2,6 +2,23 @@ import gql from 'graphql-tag'
 
 export const currentDemo = `"1"`;
 
+export const TRY_PAYMENT = gql`
+  query TryPayment($credit_card: CreditCard!, $csc: String!, $amount: Float!, $billing_address: BillingAddress!){
+    tryPayment(credit_card: $credit_card, csc: $csc, amount: $amount, billing_address: $billing_address) {
+      msg
+      status
+      paymentDetailId
+      KeyedSaleTxnResponseData {
+          success,
+          status_message
+      }
+      errData {
+          errArr
+          success 
+      }
+    }
+  }`;
+
 const PRODUCT_SIMPLE = gql`
     fragment ProductSimple on Product {
         name
@@ -73,33 +90,6 @@ export const GET_PROD_BY_ID = gql`query Prod_by_id($id: String) {
         height
         url
       }
-      ratings
-      url
-      is_featured
-      is_new
-      is_top
-      reviews
-      pictures {
-        width
-        height
-        url
-      }
-    }
-  }`
-
-export const GET_PRODUCTS_DB = gql`query GetsProd {
-    getsProd {
-      _id
-      category
-      prodName
-      stock
-      short_description
-      prodPrice
-      large_pictures {
-        width
-        height
-        url
-      }
       pictures {
         width
         height
@@ -111,19 +101,105 @@ export const GET_PRODUCTS_DB = gql`query GetsProd {
       is_new
       is_top
       reviews
+      color
+      size
+      brand
     }
   }`
 
-
-export const GET_CAT = gql`
-  query GetsProd {
+export const ProdCats = gql`query GetsProdCat {
     getsProdCat {
       _id
-      catName
-      imageUrl
+      category
+      url
     }
+  }`;
+
+export const GET_PRODUCTS_DB = gql`query GetsProd($id: String, $prodPrice: Float, $color: String, $size: String, $brand: String, $category: String, $from: Int, $to: Int, $minprice: Float, $maxprice: Float, $search: String) {
+    getsProd(_id: $id, prodPrice: $prodPrice, color: $color, size: $size, brand: $brand, category: $category, from: $from, to: $to, minprice: $minprice, maxprice: $maxprice, search: $search) {
+      data {
+        _id
+        category
+        prodName
+        stock
+        short_description
+        prodPrice
+        large_pictures {
+          width
+          height
+          url
+        }
+        pictures {
+          width
+          height
+          url
+        }
+        ratings
+        url
+        is_featured
+        is_new
+        is_top
+        reviews
+        color
+        size
+        brand
+      }
+    }
+  }`;
+
+
+export const GET_CAT = gql`query GetProdFromProduct {
+    getProdFromProduct {
+      _id
+      category
+      url
+    }
+  }`;
+
+
+export const GET_SIZE = gql`query GetSizeFromDbProduct {
+    getSizeFromDbProduct {
+      _id
+      size
+    }
+  }`;
+
+export const GET_COLOR = gql`query GetProdFromProduct {
+    getColorFromDbProduct {
+      color
+      _id
+    }
+  }`;
+
+export const GET_BRAND = gql`query GetProdFromProduct {
+    getBrandFromDbProduct {
+      _id
+      brand
+    }
+  }`;
+
+
+
+
+
+
+
+export const GET_ORDERS_BY_USERID = gql`query GetOrdersByUserId($userId: String!) {
+    getOrdersByUserId(userId:$userId) {
+        _id
+        salesOrderId
+        status
+        payMethod
+        dateTime
+        total
+        userId
+        product {
+            prodId
+      }
   }
+}
 `;
+
 export const GET_USER = gql`query User_by_email($email: String!) {
     user_by_email(email: $email) {
     email  
@@ -266,8 +342,8 @@ export const GET_PRODUCT = gql`
 
 
 
-export const CHECKOUT_MUTA = gql`mutation CreateOrder($shipingDetails: orderInput, $differentShipingDetails: orderInput, $product: [productInput], $isDeferentShip: Boolean, $isUserAgree: Boolean, $status: Int, $payMethod: Int, $dateTime: String, $total: Float, $isUserLoged: Boolean, $userId: String) {
-    createOrder(shipingDetails: $shipingDetails, differentShipingDetails: $differentShipingDetails, product: $product, isDeferentShip: $isDeferentShip, isUserAgree: $isUserAgree, status: $status, payMethod: $payMethod, dateTime: $dateTime, total: $total, isUserLoged: $isUserLoged, userId: $userId) {
+export const CHECKOUT_MUTA = gql`mutation CreateOrder($billingDetails: orderInput, $shippingDetails: orderInput, $product: [productInput], $isDeferentShip: Boolean, $isUserAgree: Boolean, $status: Int, $payMethod: String, $dateTime: String, $total: Float, $isUserLoged: Boolean, $userId: String) {
+    createOrder(billingDetails: $billingDetails, shippingDetails: $shippingDetails, product: $product, isDeferentShip: $isDeferentShip, isUserAgree: $isUserAgree, status: $status, payMethod: $payMethod, dateTime: $dateTime, total: $total, isUserLoged: $isUserLoged, userId: $userId) {
       _id
     }
   }`;
@@ -276,7 +352,8 @@ export const CHECKOUT_MUTA = gql`mutation CreateOrder($shipingDetails: orderInpu
 export const GET_ORDERBY_ID = gql`query OrderById($id: String) {
     orderById(_id: $id) {
       _id
-      shipingDetails {
+      salesOrderId
+      billingDetails {
         first
         last
         company
@@ -290,7 +367,7 @@ export const GET_ORDERBY_ID = gql`query OrderById($id: String) {
         email
         adtional_info
       }
-      differentShipingDetails {
+      shippingDetails {
         first
         last
         company

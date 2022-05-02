@@ -18,6 +18,9 @@ import SlideToggle from "react-slide-toggle";
 import filterData from "~/utils/data/shop";
 import { scrollTopHandler } from "~/utils";
 import { GET_CAT } from "~/server/queries";
+import { GET_SIZE } from "~/server/queries";
+import { GET_COLOR } from "~/server/queries";
+import { GET_BRAND } from "~/server/queries";
 
 function SidebarFilterOne(props) {
   const { type = "left", isFeatured = false } = props;
@@ -27,7 +30,7 @@ function SidebarFilterOne(props) {
     variables: { demo: 1, featured: true },
   });
   let tmpPrice = {
-    max: query.max_price ? parseInt(query.max_price) : 1000,
+    max: query.max_price ? parseInt(query.max_price) : 50,
     min: query.min_price ? parseInt(query.min_price) : 0,
   };
   const [filterPrice, setPrice] = useState(tmpPrice);
@@ -36,23 +39,62 @@ function SidebarFilterOne(props) {
   let timerId;
 
   const [cat, setCat] = useState([]);
+  const [size, setSize] = useState([]);
+  const [color, setColor] = useState([]);
+  const [brand, setBrand] = useState([]);
+
   //const { catData, catLoading, catError } = useQuery(GET_CAT);
+  const response = useQuery(GET_CAT);
+  const response_size = useQuery(GET_SIZE);
+  const response_color = useQuery(GET_COLOR);
+  const response_Brand = useQuery(GET_BRAND);
   
 
-  
-  const response = useQuery(GET_CAT);
+  //example const { loading, error, data } = useQuery(GET_MY_TODOS)
+
+
   /*console.log("A->"+response.loading)
   console.log("B->"+response.data)
   console.log("C->"+response.error)*/
-   
-  useEffect(() => {
-    if (response.loading === false) {
-      //setCat(data.getsProd)
-      //console.log("--->" + (response.data.getsProdCat));
-      setCat(response.data.getsProdCat);
-    }
-  });
 
+
+  useEffect(() => {
+    if (response_Brand.loading) {
+      console.log("Loading list of Brands")
+    } else {
+      setBrand(response_Brand.data.getBrandFromDbProduct);
+    }
+
+  }, [response_Brand]);
+
+  useEffect(() => {
+
+    if (response_color.loading) {
+      console.log("Loading list of color")
+    } else {
+      console.log(response_color.data);
+      setColor(response_color.data.getColorFromDbProduct)
+    }
+
+  }, [response_color]);
+
+  useEffect(() => {
+
+    if (response.loading) {
+      console.log("Loading list of cat")
+    } else {
+      setCat(response.data.getProdFromProduct);
+    }
+  }, [response]);
+
+  useEffect(() => {
+
+    if (response_size.loading) {
+      console.log("Loading list of size")
+    } else {
+      setSize(response_size.data.getSizeFromDbProduct);
+    }
+  }, [response_size]);
   
 
   useEffect(() => {
@@ -64,7 +106,7 @@ function SidebarFilterOne(props) {
 
   useEffect(() => {
     setPrice({
-      max: query.max_price ? parseInt(query.max_price) : 1000,
+      max: query.max_price ? parseInt(query.max_price) : 50,
       min: query.min_price ? parseInt(query.min_price) : 0,
     });
     if (isFirst) {
@@ -233,17 +275,18 @@ function SidebarFilterOne(props) {
               <Card
                 title="<h3 class='widget-title'>All Categories<span class='toggle-btn p-0 parse-content'></span></h3>"
                 type="parse"
-                expanded={true}
+                expanded={false}
               >
                 <ul className="widget-body filter-items search-ul">
-                  { cat ? 
-                    cat.map((category, index) => (
-                      <li key={category._id}>
-                        <ALink href="">{category.catName}</ALink>
-                      </li>
-                    ))
-                    : ""
-                  }
+                  {cat
+                    ? cat.map((category, index) => (
+                        <li key={category._id}>
+                          <ALink href={`shop?category=${category.category}`}>
+                            {category.category}
+                          </ALink>
+                        </li>
+                      ))
+                    : ""}
                 </ul>
               </Card>
               {/*console.log("dsdsdsdsdsd" + JSON.stringify(catData))*/}
@@ -304,16 +347,16 @@ function SidebarFilterOne(props) {
               <Card
                 title="<h3 class='widget-title'>Filter by Price<span class='toggle-btn p-0 parse-content'></span></h3>"
                 type="parse"
-                expanded={true}
+                expanded={false}
               >
                 <div className="widget-body">
                   <form action="#">
                     <div className="filter-price-slider noUi-target noUi-ltr noUi-horizontal shop-input-range">
                       <InputRange
                         formatLabel={(value) => `$${value}`}
-                        maxValue={1000}
+                        maxValue={50}
                         minValue={0}
-                        step={50}
+                        step={1}
                         value={filterPrice}
                         onChange={onChangePrice}
                       />
@@ -341,15 +384,15 @@ function SidebarFilterOne(props) {
               <Card
                 title="<h3 class='widget-title'>Size<span class='toggle-btn p-0 parse-content'></span></h3>"
                 type="parse"
-                expanded={true}
+                expanded={false}
               >
                 <ul className="widget-body filter-items">
-                  {filterData.sizes.map((item, index) => (
+                  {size.map((item, index) => (
                     <li
                       className={
-                        containsAttrInUrl("sizes", item.slug) ? "active" : ""
+                        containsAttrInUrl("sizes", item.size) ? "active" : ""
                       }
-                      key={item + " - " + index}
+                      key={item._id}
                     >
                       <ALink
                         scroll={false}
@@ -358,12 +401,12 @@ function SidebarFilterOne(props) {
                           query: {
                             ...query,
                             page: 1,
-                            sizes: getUrlForAttrs("sizes", item.slug),
+                            sizes: getUrlForAttrs("sizes", item.size),
                             type: router.query.type ? router.query.type : null,
                           },
                         }}
                       >
-                        {item.name}
+                        {item.size}
                       </ALink>
                     </li>
                   ))}
@@ -375,15 +418,15 @@ function SidebarFilterOne(props) {
               <Card
                 title="<h3 class='widget-title'>Color<span class='toggle-btn p-0 parse-content'></span></h3>"
                 type="parse"
-                expanded={true}
+                expanded={false}
               >
                 <ul className="widget-body filter-items">
-                  {filterData.colors.map((item, index) => (
+                  {color.map((item, index) => (
                     <li
                       className={
-                        containsAttrInUrl("colors", item.slug) ? "active" : ""
+                        containsAttrInUrl("colors", item.color) ? "active" : ""
                       }
-                      key={item + " - " + index}
+                      key={item._id}
                     >
                       <ALink
                         scroll={false}
@@ -392,12 +435,12 @@ function SidebarFilterOne(props) {
                           query: {
                             ...query,
                             page: 1,
-                            colors: getUrlForAttrs("colors", item.slug),
+                            colors: getUrlForAttrs("colors", item.color),
                             type: router.query.type ? router.query.type : null,
                           },
                         }}
                       >
-                        {item.name}
+                        {item.color}
                       </ALink>
                     </li>
                   ))}
@@ -409,15 +452,15 @@ function SidebarFilterOne(props) {
               <Card
                 title="<h3 class='widget-title'>Brand<span class='toggle-btn p-0 parse-content'></span></h3>"
                 type="parse"
-                expanded={true}
+                expanded={false}
               >
                 <ul className="widget-body filter-items">
-                  {filterData.brands.map((item, index) => (
+                  {brand.map((item, index) => (
                     <li
                       className={
-                        containsAttrInUrl("brands", item.slug) ? "active" : ""
+                        containsAttrInUrl("brands", item.brand) ? "active" : ""
                       }
-                      key={item + " - " + index}
+                      key={item._id}
                     >
                       <ALink
                         scroll={false}
@@ -426,12 +469,12 @@ function SidebarFilterOne(props) {
                           query: {
                             ...query,
                             page: 1,
-                            brands: getUrlForAttrs("brands", item.slug),
+                            brands: getUrlForAttrs("brands", item.brand),
                             type: router.query.type ? router.query.type : null,
                           },
                         }}
                       >
-                        {item.name}
+                        {item.brand}
                       </ALink>
                     </li>
                   ))}

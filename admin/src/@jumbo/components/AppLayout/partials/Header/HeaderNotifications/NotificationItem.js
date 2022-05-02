@@ -9,13 +9,13 @@ import CmtMediaObject from '../../../../../../@coremat/CmtMediaObject';
 import CmtAvatar from '../../../../../../@coremat/CmtAvatar';
 import { getDateElements } from '../../../../../utils/dateHelper';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import { alpha } from '@material-ui/core/styles';
+import { fade } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   feedItemRoot: {
     padding: '10px 0',
     position: 'relative',
-    borderBottom: `1px solid ${alpha(theme.palette.common.dark, 0.035)}`,
+    borderBottom: `1px solid ${fade(theme.palette.common.dark, 0.035)}`,
     '& .Cmt-media-object': {
       alignItems: 'center',
     },

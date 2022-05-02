@@ -1,12 +1,56 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Helmet from 'react-helmet';
 import { Tabs, Tab, TabList, TabPanel } from 'react-tabs';
+import { useQuery } from "@apollo/client";
+import { GET_ORDERS_BY_USERID } from "~/server/queries";
+
+import { useRouter } from 'next/router';
+
+import { connect } from "react-redux";
+
+
+var CommanFunctions = require("../../components/commanFunc/commanFunctions");
+
+
 
 import ALink from '~/components/features/custom-link';
 
-function Account() {
+function Account(props) {
+    const router = useRouter();
+    // const { data, loading, error } = useQuery(GET_ORDERS_BY_USERID);
+    const [orders, setOrders] = useState(null)
+    const returnval = CommanFunctions.checkUserLoged();
+    if (returnval) {
+        console.log(returnval)
+    }
+
+
+
+    const { data, loading, error } = useQuery(GET_ORDERS_BY_USERID, { variables: { userId: returnval.email } });
+    console.log()
+    if (loading) {
+        console.log(`data loading`)
+    }
+
+    if (data && !orders) {
+        // console.log(data.getOrdersByUserId)
+        setOrders(data.getOrdersByUserId)
+    }
+
+
+    const logout = async (e) => {
+        e.preventDefault();
+        CommanFunctions.logout();
+        props.clearUser()
+
+        router.push({
+            pathname: '/',
+        });
+    };
+
     return (
         <main className="main account">
+            {console.log(orders)}
             <Helmet>
                 <title>Printing Galore | Account</title>
             </Helmet>
@@ -34,23 +78,26 @@ function Account() {
                             <Tab className="nav-item">
                                 <a className="nav-link">Orders</a>
                             </Tab>
-                            <Tab className="nav-item">
+                            {/* <Tab className="nav-item">
                                 <a className="nav-link">Downloads</a>
-                            </Tab>
-                            <Tab className="nav-item">
+                            </Tab> */}
+                            {/* <Tab className="nav-item">
                                 <a className="nav-link">Address</a>
-                            </Tab>
-                            <Tab className="nav-item">
+                            </Tab> */}
+                            {/* <Tab className="nav-item">
                                 <a className="nav-link">Account details</a>
-                            </Tab>
+                            </Tab> */}
                             <Tab className="nav-item">
-                                <ALink className="nav-link" href="/">Logout</ALink>
+                                {/* <ALink className="nav-link" onClick={logout}>Logout</ALink> */}
+                                <a className="nav-link" href="#" onClick={logout}>
+                                    Logout
+                                </a>
                             </Tab>
                         </TabList>
                         <div className="tab-content col-lg-9 col-md-8">
                             <TabPanel className="tab-pane dashboard">
                                 <p className="mb-0">
-                                    Hello <span>User</span> (not <span>User</span>? <ALink href="/" className="text-primary">Log out</ALink>)
+                                    Hello <span>{returnval.username}</span> (not <span>{returnval.username}</span>? <ALink href="/" className="text-primary">Log out</ALink>)
                                 </p>
                                 <p className="mb-8">
                                     From your account dashboard you can view your <ALink href="#" className="link-to-tab text-primary">recent orders</ALink>, manage your shipping and billing
@@ -59,66 +106,36 @@ function Account() {
                                 <ALink href="/shop" className="btn btn-dark btn-rounded">Go To Shop<i className="d-icon-arrow-right"></i></ALink>
                             </TabPanel>
                             <TabPanel className="tab-pane">
-                                <table className="order-table">
-                                    <thead>
-                                        <tr>
-                                            <th className="pl-2">Order</th>
-                                            <th>Date</th>
-                                            <th>Status</th>
-                                            <th>Total</th>
-                                            <th className="pr-2">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td className="order-number"><ALink href="#">#3596</ALink></td>
-                                            <td className="order-date"><time>February 24, 2021</time></td>
-                                            <td className="order-status"><span>On hold</span></td>
-                                            <td className="order-total"><span>$900.00 for 5 items</span></td>
-                                            <td className="order-action"><ALink href="#" className="btn btn-primary btn-link btn-underline">View</ALink></td>
-                                        </tr>
-                                        <tr>
-                                            <td className="order-number"><ALink href="#">#3593</ALink></td>
-                                            <td className="order-date"><time>February 21, 2021</time></td>
-                                            <td className="order-status"><span>On hold</span></td>
-                                            <td className="order-total"><span>$290.00 for 2 items</span></td>
-                                            <td className="order-action"><ALink href="#" className="btn btn-primary btn-link btn-underline">View</ALink></td>
-                                        </tr>
-                                        <tr>
-                                            <td className="order-number"><ALink href="#">#2547</ALink></td>
-                                            <td className="order-date"><time>January 4, 2021</time></td>
-                                            <td className="order-status"><span>On hold</span></td>
-                                            <td className="order-total"><span>$480.00 for 8 items</span></td>
-                                            <td className="order-action"><ALink href="#" className="btn btn-primary btn-link btn-underline">View</ALink></td>
-                                        </tr>
-                                        <tr>
-                                            <td className="order-number"><ALink href="#">#2549</ALink></td>
-                                            <td className="order-date"><time>January 19, 2021</time></td>
-                                            <td className="order-status"><span>On hold</span></td>
-                                            <td className="order-total"><span>$680.00 for 5 items</span></td>
-                                            <td className="order-action"><ALink href="#" className="btn btn-primary btn-link btn-underline">View</ALink></td>
-                                        </tr>
-                                        <tr>
-                                            <td className="order-number"><ALink href="#">#4523</ALink></td>
-                                            <td className="order-date"><time>Jun 6, 2021</time></td>
-                                            <td className="order-status"><span>On hold</span></td>
-                                            <td className="order-total"><span>$564.00 for 3 items</span></td>
-                                            <td className="order-action"><ALink href="#" className="btn btn-primary btn-link btn-underline">View</ALink></td>
-                                        </tr>
-                                        <tr>
-                                            <td className="order-number"><ALink href="#">#4526</ALink></td>
-                                            <td className="order-date"><time>Jun 19, 2021</time></td>
-                                            <td className="order-status"><span>On hold</span></td>
-                                            <td className="order-total"><span>$123.00 for 8 items</span></td>
-                                            <td className="order-action"><ALink href="#" className="btn btn-primary btn-link btn-underline">View</ALink></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                {orders ?
+                                    <table className="order-table">
+                                        <thead>
+                                            <tr>
+                                                <th className="pl-2">Order</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Total</th>
+                                                <th className="pr-2">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        {orders.map((order, index) => (
+                                            <tbody>
+                                                <tr>
+                                                    {/* <td className="order-number"><ALink href="#">{order.salesOrderId ? order.salesOrderId : order._id.substring(19)}</ALink></td> */}
+                                                    <td className="order-number"><ALink href={`/pages/order-detail/?oid=${order._id}`} >{order.salesOrderId}</ALink></td>
+                                                    <td className="order-date"><time>{order.dateTime}</time></td>
+                                                    <td className="order-status"><span>{order.status}</span></td>
+                                                    <td className="order-total"><span>${order.total} for {order.product.length} items</span></td>
+                                                    <td className="order-action"><ALink href={`/pages/order-detail/?oid=${order._id}`} className="btn btn-primary btn-link btn-underline">View</ALink></td>
+                                                </tr>
+                                            </tbody>
+                                        ))}
+                                    </table>
+                                    : null}
                             </TabPanel>
-                            <TabPanel className="tab-pane downloads">
+                            {/* <TabPanel className="tab-pane downloads">
                                 <p className="mb-4 text-body">No downloads available yet.</p>
                                 <ALink href="/shop" className="btn btn-primary btn-link btn-underline">Browser Products<i className="d-icon-arrow-right"></i></ALink>
-                            </TabPanel>
+                            </TabPanel> */}
                             <TabPanel className="tab-pane">
                                 <p className="mb-2">The following addresses will be used on the checkout page by default.
                                 </p>
@@ -192,4 +209,20 @@ function Account() {
 
 }
 
-export default React.memo(Account);
+const mapStateToProps = (state) => {
+    return {
+        user: state.user.data
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+
+        setUser: (user) => dispatch({ type: "SET_USER", data: user }),
+        clearUser: () => dispatch({ type: "REM_USER" }),
+
+    }
+}
+
+// export default React.memo(Account);
+export default connect(mapStateToProps, mapDispatchToProps)(Account)

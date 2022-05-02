@@ -11,7 +11,6 @@ import CmtContent from '../../../../../@coremat/CmtLayouts/Vertical/Content';
 import Header from '../../partials/Header';
 import SidebarHeader from '../../partials/SidebarHeader';
 import SideBar from '../../partials/SideBar';
-import Customizer from './Customizer';
 import ContentLoader from '../../../ContentLoader';
 import { SIDEBAR_TYPE } from '../../../../constants/ThemeOptions';
 import Footer from '../../partials/Footer';
@@ -50,7 +49,6 @@ const VerticalMinimal = ({ className, children }) => {
       }>
       <CmtContent>
         {children}
-        {/* <Customizer /> */}
         <ContentLoader />
       </CmtContent>
     </CmtVerticalLayout>

@@ -5,7 +5,6 @@ import { Box, Button, makeStyles } from '@material-ui/core';
 import CmtList from '../../../../../../@coremat/CmtList';
 
 import MessageItem from '../../../partials/Header/HeaderMessages/MessageItem';
-import { intranet } from '../../../../../../@fake-db';
 
 import EmptyResult from './EmptyResult';
 import SearchBox from './Search/SearchBox';
@@ -27,7 +26,7 @@ const useStyles = makeStyles(theme => ({
 
 const Messages = () => {
   const classes = useStyles();
-  const [messages, setMessages] = useState(intranet.messages);
+  const [messages, setMessages] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState('');
   const totalMessages = useMemo(() => messages.length, [messages]);
 
@@ -43,7 +42,7 @@ const Messages = () => {
         ),
       );
     } else {
-      setMessages(intranet.messages);
+      setMessages([]);
     }
   };
 
